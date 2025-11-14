@@ -12,14 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('proker', function (Blueprint $table) {
-            $table->id('id_proker');
-            $table->string('nama_proker', 50);
-            $table->integer('tahun');
-            $table->text('deskripsi')->nullable();
-            $table->unsignedBigInteger('id_ukm_ormawa');
-            $table->timestamps();
-            $table->foreign('id_ukm_ormawa')->references('id_ukm_ormawa')->on('ukm_ormawa')->onDelete('cascade');
-        });
+    $table->id('id_proker');
+    $table->string('nama_proker', 50);
+    $table->integer('tahun');
+    $table->text('deskripsi')->nullable();
+    $table->unsignedBigInteger('id_ukm_ormawa');
+    $table->timestamps();
+    $table->foreign('id_ukm_ormawa')->references('id_ukm_ormawa')->on('ukm_ormawa')->onDelete('cascade');
+});
     }
 
     /**
