@@ -11,10 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('proker_pengguna', function (Blueprint $table) {
+        Schema::create('room_members', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('room_id')->constrained('rooms')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->enum('role', ['admin','sekretaris','bendahara','anggota']);
             $table->timestamps();
-        });
+});
+
     }
 
     /**
@@ -22,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('proker_pengguna');
+        Schema::dropIfExists('room_members');
     }
 };
