@@ -19,8 +19,7 @@ return new class extends Migration
             $table->string('password');
             $table->enum('role', [
                 'admin',
-                'wakil_kemahasiswaan',
-                'akademik_alumni',
+                'wakil_kemahasiswaan_akademik_alumni',
                 'kepala_bagian',
                 'bpp',
                 'sekretaris',

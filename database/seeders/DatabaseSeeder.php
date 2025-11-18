@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             UserSeeder::class,
             RoomSeeder::class,
+            ProkerSeeder::class,
             // nanti bisa tambah DocumentSeeder, TimelineSeeder kalau sudah ada
         ]);
     }

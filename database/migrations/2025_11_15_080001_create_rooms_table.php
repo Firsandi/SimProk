@@ -1,5 +1,6 @@
 <?php
 
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -11,12 +12,10 @@ return new class extends Migration
         Schema::create('rooms', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('slug')->unique();
             $table->string('period');
             $table->enum('organization_type', ['ukm', 'ormawa']);
             $table->foreignId('admin_id')->constrained('users')->onDelete('cascade');
             $table->enum('status', ['active', 'inactive'])->default('active');
-            $table->string('color')->default('blue');
             $table->enum('room_type', ['sekretaris', 'bendahara'])->default('sekretaris');
             $table->timestamps();
             $table->softDeletes();

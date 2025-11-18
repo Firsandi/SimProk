@@ -11,14 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('room_members', function (Blueprint $table) {
+        Schema::create('room_proker', function (Blueprint $table) {
             $table->id();
+            $table->string('nama_proker');
+            $table->year('tahun');
+            $table->text('deskripsi')->nullable();
             $table->foreignId('room_id')->constrained('rooms')->onDelete('cascade');
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->enum('role', ['admin','sekretaris','bendahara']);
             $table->timestamps();
-});
 
+        });
     }
 
     /**
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('room_members');
+        Schema::dropIfExists('room_proker');
     }
 };

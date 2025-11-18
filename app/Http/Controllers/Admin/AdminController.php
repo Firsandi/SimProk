@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Services\DashboardService; // ✅ ini wajib ditambahkan
+use App\Services\DashboardService; 
 
 class AdminController extends Controller
 {
@@ -22,5 +22,14 @@ class AdminController extends Controller
         $periods = $this->dashboardService->getPeriods();
 
         return view('admin.dashboard', compact('stats','rooms','periods'));
+    }
+    public function timeline()
+    {
+        return view('admin.timeline');
+    }
+
+    public function documents()
+    {
+        return view('admin.documents');
     }
 }

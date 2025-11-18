@@ -52,10 +52,15 @@ class User extends Authenticatable
     {
         return in_array($this->role, [
             'admin',
-            'wakil_kemahasiswaan',
-            'akademik_alumni',
+            'wakil_kemahasiswaan_akademik_alumni',
             'kepala_bagian',
             'bpp'
         ]);
+    }
+        public function prokers()
+    {
+        return $this->belongsToMany(Proker::class, 'proker_members', 'user_id', 'proker_id')
+                    ->withPivot('role')
+                    ->withTimestamps();
     }
 }

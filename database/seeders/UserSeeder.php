@@ -15,13 +15,13 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         User::create([
-            'name' => 'Admin Fasilkom',
-            'username' => 'admin',
-            'email' => 'admin@fasilkom.unej.ac.id',
-            'password' => Hash::make('password123'),
+            'name' => 'Admin Bendahara',
+            'username' => 'admin bendahara',
+            'email' => 'adminbend@fasilkom.unej.ac.id',
+            'password' => Hash::make('minbend123'),
             'role' => 'admin',
             'is_active' => true,
-]);
+        ]);
 
     }
 }
