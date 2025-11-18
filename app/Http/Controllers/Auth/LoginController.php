@@ -16,7 +16,14 @@ class LoginController extends Controller
     public function showLoginForm()
     {
         if (Auth::check()) {
-            return redirect()->route('admin.dashboard');
+            $user = Auth::user();
+            
+            // Redirect based on role
+            if ($user->isAdmin()) {
+                return redirect()->route('admin.dashboard');
+            }
+            
+            return redirect()->route('user.dashboard');
         }
         
         return view('pages.login');
@@ -39,29 +46,54 @@ class LoginController extends Controller
                     ->orWhere('email', $validated['username'])
                     ->first();
 
-        // Cek user ada, password cocok, dan aktif
-        if ($user && Hash::check($validated['password'], $user->password) && $user->is_active) {
-            
-            Auth::login($user);
-            $request->session()->regenerate();
-
-            $this->logActivity('user_login', $user);
-
-            // Redirect berdasarkan role
-            if ($validated['user_type'] === 'admin' && $user->isAdmin()) {
-                return redirect()->route('admin.dashboard')
-                                 ->with('success', 'Selamat datang, Admin!');
-            }
-
-            // sementara user diarahkan ke dashboard admin juga
-            return redirect()->route('admin.dashboard')
-                             ->with('success', 'Selamat datang!');
+        // Cek user ada dan password cocok
+        if (!$user || !Hash::check($validated['password'], $user->password)) {
+            return back()->withErrors([
+                'username' => 'Username atau password tidak valid.',
+            ])->withInput($request->except('password'));
         }
 
-        // Login gagal
-        return back()->withErrors([
-            'username' => 'Username atau password tidak valid, atau akun tidak aktif.',
-        ])->withInput($request->except('password'));
+        // Cek apakah akun aktif
+        if (!$user->is_active) {
+            return back()->withErrors([
+                'username' => 'Akun Anda tidak aktif. Hubungi administrator.',
+            ])->withInput($request->except('password'));
+        }
+
+        // ===== VALIDASI ROLE SESUAI TAB YANG DIPILIH =====
+        
+        if ($validated['user_type'] === 'admin') {
+            // Tab Admin: hanya admin yang boleh login
+            if (!$user->isAdmin()) {
+                return back()->withErrors([
+                    'username' => '❌ Anda tidak memiliki akses sebagai Admin. Silakan pilih tab "As User".',
+                ])->withInput($request->except('password'));
+            }
+        } else {
+            // Tab User: hanya user biasa yang boleh login (bukan admin)
+            if ($user->isAdmin()) {
+                return back()->withErrors([
+                    'username' => '❌ Akun Admin tidak bisa login sebagai User. Silakan pilih tab "As Admin".',
+                ])->withInput($request->except('password'));
+            }
+        }
+
+        // Login user
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        // Log activity
+        $this->logActivity('user_login', $user, $validated['user_type']);
+
+        // Redirect berdasarkan user_type
+        if ($validated['user_type'] === 'admin') {
+            return redirect()->route('admin.dashboard')
+                             ->with('success', '✅ Selamat datang, Admin ' . $user->name . '!');
+        }
+
+        // Redirect ke user dashboard
+        return redirect()->route('user.dashboard')
+                         ->with('success', '✅ Selamat datang, ' . $user->name . '!');
     }
 
     /**
@@ -74,14 +106,22 @@ class LoginController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('login')
-                         ->with('success', 'Anda telah logout.');
+                         ->with('success', '👋 Anda telah logout.');
     }
 
     /**
-     * Log user activity (optional)
+     * Log user activity
      */
-    private function logActivity(string $activity, User $user)
+    private function logActivity(string $activity, User $user, string $userType)
     {
-        \Log::info("Activity: $activity", ['user_id' => $user->id]);
+        \Log::info("Activity: $activity", [
+            'user_id' => $user->id,
+            'username' => $user->username,
+            'role' => $user->role,
+            'login_as' => $userType, // 'admin' atau 'user'
+            'ip' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+            'timestamp' => now(),
+        ]);
     }
 }
