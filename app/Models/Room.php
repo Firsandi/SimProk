@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Document;
+
 
 class Room extends Model
 {
@@ -15,38 +17,11 @@ class Room extends Model
         'organization_type',
         'admin_id',
         'status',
-        'color',
         'room_type',
     ];
 
-    /**
-     * Relasi ke Document
-     */
-    public function documents(): HasMany
+    public function getDocumentStatus()
     {
-        return $this->hasMany(Document::class);
-    }
-
-    public function getDocumentStats(): array
-    {
-        $approved = $this->documents()
-            ->whereHas('latestStatus', function ($query) {
-                $query->where('status', 'approved');
-            })
-            ->count();
-
-        $pending = $this->documents()
-            ->whereHas('latestStatus', function ($query) {
-                $query->where('status', 'pending');
-            })
-            ->count();
-
-        $rejected = $this->documents()
-            ->whereHas('latestStatus', function ($query) {
-                $query->whereIn('status', ['rejected', 'revision']);
-            })
-            ->count();
-
         return [
             'approved' => $approved,
             'pending'  => $pending,
@@ -54,11 +29,34 @@ class Room extends Model
             'total'    => $approved + $pending + $rejected,
         ];
     }
-    
+
+    public function getDocumentStats(): array
+    {
+        return [
+            'approved' => $this->documents()->whereHas('latestStatus', fn($q) => $q->where('status', 'approved'))->count(),
+            'pending'  => $this->documents()->whereHas('latestStatus', fn($q) => $q->where('status', 'pending'))->count(),
+            'rejected' => $this->documents()->whereHas('latestStatus', fn($q) => $q->whereIn('status', ['rejected', 'revision']))->count(),
+        ];
+    }
+
     public function getRecentNotificationCount(): int
     {
         return $this->documents()
-            ->where('created_at', '>=', now()->subDay())
+            ->whereHas('latestStatus', fn($q) 
+            => $q->where('status', 'pending'))
             ->count();
     }
+
+
+    public function documents()
+    {
+        return $this->hasMany(Document::class);
+    }
+
+    public function prokers()
+    {
+        return $this->hasMany(Proker::class, 'room_id');
+    }
+
+
 }

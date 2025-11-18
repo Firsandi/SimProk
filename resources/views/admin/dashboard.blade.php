@@ -18,6 +18,10 @@
                    class="menu-item px-4 py-2 flex items-center gap-2 hover:bg-gray-800 rounded {{ request()->routeIs('admin.timeline') ? 'bg-gray-800' : '' }}">
                     <i class="fas fa-clock"></i> Timeline
                 </a>
+                <a href="{{ route('admin.room.create') }}" 
+                   class="menu-item px-4 py-2 flex items-center gap-2 hover:bg-gray-800 rounded {{ request()->routeIs('admin.ukm.create') ? 'bg-gray-800' : '' }}">
+                    <i class="fas fa-plus-circle"></i> Tambah UKM/ORMAWA
+                </a>
             </nav>
         </div>
         <!-- Logout Button -->
@@ -90,6 +94,12 @@
                             <div class="mt-4 text-xs px-3 py-2 rounded-lg font-medium 
                                 {{ $room['has_notification'] ? 'bg-blue-50 text-blue-700' : 'bg-gray-100 text-gray-600' }}">
                                 <i class="fas fa-info-circle mr-1"></i>{{ $room['notification'] }}
+                            </div>
+                            <div class="mt-4">
+                                <a href="{{ route('admin.room.proker.index', $room['id']) }}" 
+                                   class="inline-block bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">
+                                   Lihat Program Kerja
+                                </a>
                             </div>
                         </div>
                     </div>
