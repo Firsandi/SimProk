@@ -26,7 +26,7 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 //     Route::get('/documents', [AdminController::class, 'documents'])->name('documents');
 // });
 
-Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
+Route::prefix('admin')->middleware('role:admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
     // Room resource
@@ -47,12 +47,11 @@ Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function
 
 
 // User routes
-Route::middleware('role:user')->prefix('user')->name('user.')->group(function () {
+Route::prefix('user')->name('user.')->group(function () {
     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
-    
     Route::get('/rooms', [UserRoomController::class, 'index'])->name('rooms');
     Route::get('/room/{id}', [UserRoomController::class, 'show'])->name('room.detail');
-    Route::get('/documents', [DocumentController::class, 'index'])->name('documents')->middleware('verificationStats:verified');
+    Route::get('/documents', [DocumentController::class, 'index'])->name('documents');
     Route::get('/document/create/{roomId}', [DocumentController::class, 'create'])->name('document.create');
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
     Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread-count');

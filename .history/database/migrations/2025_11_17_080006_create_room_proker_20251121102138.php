@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('nama_proker');
             $table->year('tahun');
             $table->text('deskripsi')->nullable();
-            $table->foreignId()->constrained('users')->nullable();
+            $table->foreignId('user_id')
             $table->foreignId('room_id')->constrained('rooms')->onDelete('cascade');
             $table->timestamps();
 

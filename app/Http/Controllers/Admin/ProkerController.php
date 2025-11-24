@@ -46,4 +46,42 @@ class ProkerController extends Controller
         return redirect()->route('admin.room.proker.index', $room->id)
                          ->with('success', 'Program kerja berhasil ditambahkan.');
     }
+
+
+    public function edit($roomId, $prokerId)
+    {
+        $room = Room::findOrFail($roomId);
+        $proker = Proker::where('room_id', $roomId)->findOrFail($prokerId);
+
+        return view('admin.room.proker.edit', compact('room', 'proker'));
+    }
+
+    public function update(Request $request, $roomId, $prokerId)
+    {
+        $request->validate([
+            'nama_proker' => 'required|string|max:100',
+            'tahun'       => 'required|integer',
+            'deskripsi'   => 'nullable|string',
+        ]);
+
+        $proker = Proker::where('room_id', $roomId)->findOrFail($prokerId);
+
+        $proker->update([
+            'nama_proker' => $request->nama_proker,
+            'tahun'       => $request->tahun,
+            'deskripsi'   => $request->deskripsi,
+        ]);
+
+        return redirect()->route('admin.room.proker.index', $roomId)
+                        ->with('success', 'Proker berhasil diupdate');
+    }
+
+    public function destroy($roomId, $prokerId)
+{
+    $proker = Proker::where('room_id', $roomId)->findOrFail($prokerId);
+    $proker->delete();
+
+    return redirect()->route('admin.room.proker.index', $roomId)
+                     ->with('success', 'Proker berhasil dihapus');
+}
 }

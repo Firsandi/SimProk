@@ -28,7 +28,6 @@ return new class extends Migration
             ])->default('user'); // tambahan
             $table->boolean('is_active')->default(true); // tambahan
             $table->timestamp('email_verified_at')->nullable();
-            $table->enum('verificationStatus', ['verified', 'pending', 'rejected'])->default('pending');
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes(); // opsional

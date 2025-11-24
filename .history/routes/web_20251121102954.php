@@ -49,7 +49,6 @@ Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function
 // User routes
 Route::middleware('role:user')->prefix('user')->name('user.')->group(function () {
     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
-    
     Route::get('/rooms', [UserRoomController::class, 'index'])->name('rooms');
     Route::get('/room/{id}', [UserRoomController::class, 'show'])->name('room.detail');
     Route::get('/documents', [DocumentController::class, 'index'])->name('documents')->middleware('verificationStats:verified');
