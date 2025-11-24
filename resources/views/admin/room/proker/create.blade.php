@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+<div class="w-800 max-w-screen-xl mx-auto bg-white shadow rounded px-6 py-8">
     <h2 class="text-2xl font-bold mb-4">Tambah Program Kerja - {{ $room->name }}</h2>
 
     <form action="{{ route('admin.room.proker.store', $room->id) }}" method="POST" class="bg-white p-6 rounded shadow">
@@ -35,7 +35,10 @@
         </div>
 
         <div class="flex justify-end gap-3">
-            <a href="{{ route('admin.room.proker.index', $room->id) }}" class="text-gray-600 hover:underline">Batal</a>
+<a href="{{ route('admin.room.proker.index', $room->id) }}"
+   class="bg-gray-500 text-white px-4 py-2 rounded shadow hover:bg-gray-600 transition focus:outline-none">
+    Batal
+</a>
             <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700">Simpan</button>
         </div>
     </form>
