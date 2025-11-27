@@ -15,7 +15,8 @@ class ProkerController extends Controller
     public function index(Room $room)
     {
         $prokers = $room->prokers()->latest()->get();
-        return view('admin.room.proker.index', compact('room', 'prokers'));
+        $anggotaRoom = $room->members()->orderBy('name')->get();
+        return view('admin.room.proker.index', compact('room', 'prokers','anggotaRoom'));
     }
 
     /**
@@ -29,12 +30,14 @@ class ProkerController extends Controller
     /**
      * Simpan data proker baru.
      */
-    public function store(Request $request, Room $room)
+    public function store(Request $request, Room $room, Proker $proker)
     {
         $request->validate([
             'nama_proker' => 'required|string|max:255',
             'tahun' => 'required|integer|min:2000|max:2100',
             'deskripsi' => 'nullable|string',
+            'members'     => 'nullable|array',
+            'members.*'   => 'exists:users,id',
         ]);
 
         $room->prokers()->create([
@@ -43,45 +46,59 @@ class ProkerController extends Controller
             'deskripsi' => $request->deskripsi,
         ]);
 
-        return redirect()->route('admin.room.proker.index', $room->id)
-                         ->with('success', 'Program kerja berhasil ditambahkan.');
+        if ($request->filled('members')) {
+        $proker->members()->attach($request->members);
+        }
+
+        return redirect()->route('admin.room.proker.index', $room->id)->with('success', 'Program kerja berhasil ditambahkan.');
     }
 
 
-    public function edit($roomId, $prokerId)
+    public function edit(Room $room, Proker $proker)
     {
-        $room = Room::findOrFail($roomId);
-        $proker = Proker::where('room_id', $roomId)->findOrFail($prokerId);
-
-        return view('admin.room.proker.edit', compact('room', 'proker'));
+        $anggotaRoom = $room->members()->orderBy('name')->get();
+        $roles = ['bendahara', 'sekretaris'];
+        return view('admin.room.proker.edit', compact('room', 'proker','anggotaRoom','roles'));
     }
 
-    public function update(Request $request, $roomId, $prokerId)
+    public function update(Request $request, Room $room, Proker $proker)
     {
         $request->validate([
             'nama_proker' => 'required|string|max:100',
             'tahun'       => 'required|integer',
             'deskripsi'   => 'nullable|string',
+            'members' => 'nullable|array',
+            'members.*.user_id' => 'required|exists:users,id',
         ]);
 
-        $proker = Proker::where('room_id', $roomId)->findOrFail($prokerId);
-
-        $proker->update([
-            'nama_proker' => $request->nama_proker,
-            'tahun'       => $request->tahun,
-            'deskripsi'   => $request->deskripsi,
+       $proker->update([
+        'nama_proker' => $request->nama_proker,
+        'tahun'       => $request->tahun,
+        'deskripsi'   => $request->deskripsi,
         ]);
 
-        return redirect()->route('admin.room.proker.index', $roomId)
-                        ->with('success', 'Proker berhasil diupdate');
+         if ($request->filled('member_id')) {
+        $proker->members()->sync([$request->member_id]);
+        } else { 
+            $proker->members()->detach(); // kosongkan kalau tidak dipilih
+        }
+
+        return redirect()->route('admin.room.proker.show',['room'=>$room->id, $proker->id])->with('success', 'Proker berhasil diperbarui');
+    }
+
+    public function show(Room $room, Proker $proker)
+    {
+        $members = $proker->members()->get();
+
+        return view('admin.room.proker.show', compact('room', 'proker', 'members'));
     }
 
     public function destroy($roomId, $prokerId)
-{
-    $proker = Proker::where('room_id', $roomId)->findOrFail($prokerId);
-    $proker->delete();
+    {
+        $proker->delete();
 
-    return redirect()->route('admin.room.proker.index', $roomId)
-                     ->with('success', 'Proker berhasil dihapus');
-}
+        return redirect()->route('admin.room.proker.index', $roomId)->with('success', 'Proker berhasil dihapus');
+    }
+
+
 }

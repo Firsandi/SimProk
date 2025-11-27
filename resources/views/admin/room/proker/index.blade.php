@@ -1,23 +1,26 @@
 @extends('layouts.app')
 
 @section('content')
-<!-- Kontainer utama -->
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <!-- Header tombol aksi -->
-    <div class="flex justify-between items-center mb-8 gap-4">
-        <!-- Tombol balik ke dashboard -->
-        <a href="{{ route('admin.dashboard') }}"
-           class="bg-gray-700 text-white px-5 py-2 rounded-lg shadow hover:bg-gray-800 transition">
-            ← Kembali ke Dashboard
-        </a>
+<div class="max-w-6xl mx-auto px-4 py-6">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">Program Kerja {{ $room->name }}</h2>
+        <div class="flex flex-wrap gap-3">
+            <a href="{{ route('admin.dashboard') }}"
+               class="bg-gray-600 text-white px-4 py-2 rounded-lg shadow hover:bg-gray-800 transition">
+                ← Kembali ke Dashboard
+            </a>
 
-        <!-- Tombol tambah Proker -->
-        <a href="{{ route('admin.room.proker.create', $room->id) }}"
-           class="bg-indigo-600 text-white px-5 py-2 rounded-lg shadow hover:bg-indigo-700 transition">
-            + Tambah Program Kerja
-        </a>
+            <a href="{{ route('admin.room.proker.create', $room->id) }}"
+               class="bg-indigo-600 text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-700 transition">
+                + Tambah Program Kerja
+            </a>
+
+            <a href="{{ route('admin.room.member.index', $room->id) }}"
+               class="bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700 transition">
+                Lihat Anggota {{ $room->name }}
+            </a>
+        </div>
     </div>
-
     <!-- Grid daftar Proker -->
     @if($prokers->isEmpty())
         <p class="text-gray-500">Belum ada proker.</p>
@@ -29,7 +32,10 @@
                     <div class="p-5 bg-gray-100">
                         <div class="flex justify-between items-start">
                             <div>
-                                <h3 class="text-lg font-bold leading-tight">{{ $proker->nama_proker }}</h3>
+                                <a href="{{ route('admin.room.proker.show', [$room->id, $proker->id]) }}"
+                                class="text-lg font-bold leading-tight text-grey-700 hover:underline">
+                                    {{ $proker->nama_proker }}
+                                </a>
                                 <span class="block text-xs opacity-90 mt-1">Tahun: {{ $proker->tahun }}</span>
                             </div>
                             <!-- Status badge kalau ada -->

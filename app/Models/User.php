@@ -48,21 +48,14 @@ class User extends Authenticatable
         return $this->hasMany(DocumentStatus::class, 'reviewed_by');
     }
 
-    public function prokers(): BelongsToMany
-    {
-        return $this->belongsToMany(Proker::class, 'proker_members', 'user_id', 'proker_id')
-                    ->withPivot('role')
-                    ->withTimestamps();
-    }
-
-    // Cek role admin - TIDAK DIUBAH
     public function isAdmin(): bool
     {
         return in_array($this->role, [
             'admin',
-            'wakil_kemahasiswaan_akademik_alumni',
-            'kepala_bagian',
-            'bpp'
+            'admin_sekretaris',
+            'admin_bendahara',
+            'sekretaris',
+            'bendahara',
         ]);
     }
 

@@ -1,23 +1,22 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="flex">
+<div class="flex min-h-screen">
     <!-- Sidebar -->
-    <div class="fixed top-0 left-0 w-64 h-screen bg-gray-900 text-white flex flex-col justify-between z-50">
+    <div class="hidden md:flex md:flex-col md:w-64 fixed top-0 left-0 h-screen bg-gray-900 text-white justify-between z-50">
         <div>
             <div class="p-6 border-b border-gray-800">
                 <h1 class="text-xl font-bold">SimProk</h1>
                 <p class="text-gray-400 text-sm">Admin Dashboard</p>
             </div>
-                <a href="{{ route('admin.timeline') }}"
-                   class="menu-item px-4 py-2 flex items-center gap-2 hover:bg-gray-800 rounded {{ request()->routeIs('admin.timeline') ? 'bg-gray-800' : '' }}">
-                    <i class="fas fa-clock"></i> Timeline
-                </a>
-                <a href="{{ route('admin.room.index') }}"
-                   class="menu-item px-4 py-2 flex items-center gap-2 hover:bg-gray-800 rounded {{ request()->routeIs('admin.ukm.index') ? 'bg-gray-800' : '' }}">
-                    <i class="fas fa-plus-circle"></i> Kelola UKM/ORMAWA
-                </a>
-            </nav>
+            <a href="{{ route('admin.timeline') }}"
+               class="menu-item px-4 py-2 flex items-center gap-2 hover:bg-gray-800 rounded {{ request()->routeIs('admin.timeline') ? 'bg-gray-800' : '' }}">
+                <i class="fas fa-clock"></i> Timeline
+            </a>
+            <a href="{{ route('admin.room.index') }}"
+               class="menu-item px-4 py-2 flex items-center gap-2 hover:bg-gray-800 rounded {{ request()->routeIs('admin.ukm.index') ? 'bg-gray-800' : '' }}">
+                <i class="fas fa-plus-circle"></i> Kelola UKM/ORMAWA
+            </a>
         </div>
         <!-- Logout Button -->
         <div class="p-6 border-t border-gray-800">
@@ -32,7 +31,7 @@
     </div>
 
     <!-- Main Content -->
-    <div class="flex-1 bg-gray-100 min-h-screen">
+    <div class="flex-1 bg-gray-100 min-h-screen md:ml-64">
         <header class="bg-white shadow px-6 py-4 flex justify-between items-center">
             <div>
                 <h2 class="text-2xl font-bold">Dashboard</h2>
@@ -43,7 +42,7 @@
             </div>
         </header>
 
-        <div class="p-6">
+        <div class="p-6 max-w-screen-2xl mx-auto">
             <!-- Welcome Banner -->
             <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl p-8 mb-8 text-white shadow">
                 <h3 class="text-3xl font-bold mb-2">Selamat Datang, {{ auth()->user()->name }} 👋</h3>
@@ -51,7 +50,7 @@
             </div>
 
             <!-- Stats Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <div class="bg-white p-6 rounded-xl shadow border-l-4 border-blue-500">
                     <p class="text-sm text-gray-600">Total UKM/Ormawa</p>
                     <p class="text-3xl font-bold">{{ $stats['total_ukm'] }}</p>
@@ -71,7 +70,7 @@
             </div>
 
             <!-- Room Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 @foreach($rooms as $room)
                     <div class="bg-white rounded-xl shadow overflow-hidden hover:shadow-lg transition">
                         <div class="p-6 bg-{{ $room['color'] }}-600 relative">
