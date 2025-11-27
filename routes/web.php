@@ -9,22 +9,13 @@ use App\Http\Controllers\User\DocumentController;
 use App\Http\Controllers\User\NotificationController;
 use App\Http\Controllers\Admin\RoomController as AdminRoomController;
 use App\Http\Controllers\Admin\ProkerController;
+use App\Http\Controllers\Admin\RoomMemberController;
 
 // Login routes
 Route::get('/', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/', [LoginController::class, 'login'])->name('login.submit');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-// Admin routes
-// Route::prefix('admin')->name('admin.')->group(function () {
-//     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-//     Route::resource('room', AdminRoomController::class);
-//     Route::get('/room/{room}/proker/index', [ProkerController::class, 'index'])->name('room.proker.index');
-//     Route::get('/room/{room}/proker/create', [ProkerController::class, 'create'])->name('room.proker.create');
-//     Route::post('/room/{room}/proker', [ProkerController::class, 'store'])->name('room.proker.store');
-//     Route::get('/timeline', [AdminController::class, 'timeline'])->name('timeline');
-//     Route::get('/documents', [AdminController::class, 'documents'])->name('documents');
-// });
 
 Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
@@ -39,7 +30,14 @@ Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function
     Route::get('/room/{room}/proker/{proker}/edit', [ProkerController::class, 'edit'])->name('room.proker.edit');
     Route::put('/room/{room}/proker/{proker}', [ProkerController::class, 'update'])->name('room.proker.update');
     Route::delete('/room/{room}/proker/{proker}', [ProkerController::class, 'destroy'])->name('room.proker.destroy');
+    Route::get('/room/{room}/proker/{proker}', [ProkerController::class, 'show'])->name('room.proker.show');
 
+    //member room
+    Route::get('/room/{room}/member/create', [RoomMemberController::class, 'create'])->name('room.member.create');
+    Route::post('/room/{room}/member', [RoomMemberController::class, 'store'])->name('room.member.store');
+    Route::get('/room/{room}/member', [RoomMemberController::class, 'index'])->name('room.member.index');
+
+    
     // Admin extras
     Route::get('/timeline', [AdminController::class, 'timeline'])->name('timeline');
     Route::get('/documents', [AdminController::class, 'documents'])->name('documents');

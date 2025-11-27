@@ -58,5 +58,19 @@ class Room extends Model
         return $this->hasMany(Proker::class, 'room_id');
     }
 
+        public function members()
+    {
+        return $this->belongsToMany(User::class, 'room_members', 'room_id', 'user_id')
+                    ->withPivot('role')
+                    ->withTimestamps();
+    }
+
+        public function rooms()
+    {
+        return $this->belongsToMany(Room::class, 'room_members', 'user_id', 'room_id')
+                    ->withPivot('role')
+                    ->withTimestamps();
+    }
+
 
 }

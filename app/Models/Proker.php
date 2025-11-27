@@ -13,4 +13,9 @@ class Proker extends Model
     {
         return $this->belongsTo(Room::class, 'room_id');
     }
+
+    public function members()
+    {
+        return $this->belongsToMany(User::class, 'proker_members', 'proker_id', 'user_id')->withTimestamps();
+    }
 }
