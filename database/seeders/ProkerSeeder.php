@@ -3,37 +3,40 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
+use App\Models\Proker;
 
 class ProkerSeeder extends Seeder
 {
     public function run(): void
     {
-        DB::table('room_proker')->insert([
-            [
-                'nama_proker' => 'Pembinaan dan Pengembangan Mahasiswa Baru (PPMB)',
-                'tahun' => 2025,
-                'deskripsi' => 'Pengenalan mengenai FASILKOM kepada Mahasiswa Baru',
-                'room_id' => 1,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'nama_proker' => 'Technology Innovative Challenge (TIC)',
-                'tahun' => 2025,
-                'deskripsi' => 'Workshop dan Lomba Teknologi tingkat Nasional',
-                'room_id' => 3,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'nama_proker' => 'Character Organization Development (COD)',
-                'tahun' => 2025,
-                'deskripsi' => 'Pengembangan karakter pengurus HIMATIF',
-                'room_id' => 3,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
+        Proker::create([
+            'room_id' => 1,
+            'name' => 'PPMB',
+            'description' => 'Pengenalan mengenai FASILKOM kepada Mahasiswa Baru',
+            'year' => 2025,
+            'start_date' => now()->subDays(10),
+            'end_date' => now()->addDays(10),
+            'status' => 'ongoing',
+        ]);
+
+        Proker::create([
+            'room_id' => 1,
+            'name' => 'TIC',
+            'description' => 'Workshop dan Lomba Teknologi tingkat Nasional',
+            'year' => 2025,
+            'start_date' => now()->subDays(5),
+            'end_date' => now()->addDays(15),
+            'status' => 'ongoing',
+        ]);
+
+        Proker::create([
+            'room_id' => 1,
+            'name' => 'COD',
+            'description' => 'Pengembangan karakter pengurus HIMATIF',
+            'year' => 2025,
+            'start_date' => now()->addDays(5),
+            'end_date' => now()->addDays(20),
+            'status' => 'ongoing',
         ]);
     }
 }

@@ -3,27 +3,22 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
+use App\Models\ProkerMember;
 
-class ProkerPenggunaSeeder extends Seeder
+class ProkerMemberSeeder extends Seeder
 {
     public function run(): void
     {
-        DB::table('proker_pengguna')->insert([
-            [
-                'id_proker' => 1,
-                'id_pengguna' => 1,
-                'role' => 'sekretaris',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'id_proker' => 2,
-                'id_pengguna' => 2,
-                'role' => 'bendahara',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
+        ProkerMember::create([
+            'proker_id' => 1,
+            'user_id' => 2,
+            'role' => 'sekretaris',
+        ]);
+
+        ProkerMember::create([
+            'proker_id' => 2,
+            'user_id' => 3,
+            'role' => 'bendahara',
         ]);
     }
 }

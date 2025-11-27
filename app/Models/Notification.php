@@ -1,14 +1,17 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\User;
 
 class Notification extends Model
 {
     protected $fillable = [
         'user_id','type','title','message','data','read_at','action_url'
     ];
+
     protected $casts = [
         'data' => 'array',
         'read_at' => 'datetime',
@@ -16,10 +19,28 @@ class Notification extends Model
         'updated_at' => 'datetime',
     ];
 
-    public function user(): BelongsTo { return $this->belongsTo(User::class); }
-    public function markAsRead(){ $this->update(['read_at' => now()]); }
-    public function isUnread(): bool { return is_null($this->read_at); }
-    public function getIcon(): string {
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function markAsRead(): void
+    {
+        $this->update(['read_at' => now()]);
+    }
+
+    public function isUnread(): bool
+    {
+        return $this->read_at === null;
+    }
+
+    public function scopeUnread($query)
+    {
+        return $query->whereNull('read_at');
+    }
+
+    public function getIcon(): string
+    {
         return match($this->type) {
             'document_approved' => 'check-circle',
             'document_revision' => 'exclamation-circle',
@@ -28,7 +49,9 @@ class Notification extends Model
             default => 'bell',
         };
     }
-    public function getColor(): string {
+
+    public function getColor(): string
+    {
         return match($this->type) {
             'document_approved' => 'green',
             'document_revision' => 'red',

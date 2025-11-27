@@ -3,29 +3,32 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
+use App\Models\Document;
 
-class DokumenSeeder extends Seeder
+class DocumentSeeder extends Seeder
 {
     public function run(): void
     {
-        DB::table('dokumen')->insert([
-            [
-                'id_proker_pengguna' => 1,
-                'jenis_dokumen' => 'proposal',
-                'nama_dokumen' => 'Proposal PPMB',
-                'catatan' => 'Butuh revisi rundown',
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'id_proker_pengguna' => 2,
-                'jenis_dokumen' => 'spj',
-                'nama_dokumen' => 'Surat Pertanggungjawaban TIC',
-                'catatan' => null,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
+        Document::create([
+            'room_id' => 1,
+            'proker_id' => 1,
+            'title' => 'Proposal PPMB',
+            'document_type' => 'proposal',
+            'file_path' => 'documents/proposal_ppmb.pdf',
+            'submitted_by' => 2,
+            'submitted_at' => now()->subDays(3),
+            'notes' => 'Butuh revisi rundown',
+        ]);
+
+        Document::create([
+            'room_id' => 1,
+            'proker_id' => 2,
+            'title' => 'SPJ TIC',
+            'document_type' => 'spj',
+            'file_path' => 'documents/spj_tic.pdf',
+            'submitted_by' => 3,
+            'submitted_at' => now()->subDays(2),
+            'notes' => null,
         ]);
     }
 }

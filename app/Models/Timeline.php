@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Timeline extends Model
 {
@@ -20,9 +21,6 @@ class Timeline extends Model
         'updated_at' => 'datetime',
     ];
 
-    /**
-     * Relationships
-     */
     public function room(): BelongsTo
     {
         return $this->belongsTo(Room::class);
@@ -38,10 +36,6 @@ class Timeline extends Model
         return $this->belongsTo(Document::class);
     }
 
-    /**
-     * Get icon class untuk activity type
-     * (Fungsi ini dipanggil oleh TimelineService)
-     */
     public function getActivityIcon(): string
     {
         return match($this->activity_type) {
@@ -54,10 +48,6 @@ class Timeline extends Model
         };
     }
 
-    /**
-     * Get color class untuk activity type
-     * (Fungsi ini dipanggil oleh TimelineService)
-     */
     public function getActivityColor(): string
     {
         return match($this->activity_type) {

@@ -19,4 +19,19 @@ class DocumentStatus extends Model
     {
         return $this->belongsTo(Document::class);
     }
+
+    public function getStatusColor(): string
+    {
+        return match($this->status) {
+            'approved' => 'green',
+            'pending' => 'yellow',
+            'revision', 'rejected' => 'red',
+            default => 'gray',
+        };
+    }
+    public function reviewer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
 }

@@ -17,15 +17,12 @@ class LoginController extends Controller
     {
         if (Auth::check()) {
             $user = Auth::user();
-            
-            // Redirect based on role
-            if ($user->isAdmin()) {
-                return redirect()->route('admin.dashboard');
-            }
-            
-            return redirect()->route('user.dashboard');
+
+            return $user->isAdmin()
+                ? redirect()->route('admin.dashboard')
+                : redirect()->route('user.dashboard');
         }
-        
+
         return view('pages.login');
     }
 
@@ -34,66 +31,52 @@ class LoginController extends Controller
      */
     public function login(Request $request)
     {
-        // Validasi input
         $validated = $request->validate([
             'username'   => 'required|string',
             'password'   => 'required|string|min:6',
             'user_type'  => 'required|in:user,admin',
         ]);
 
-        // Cari user by username atau email
+        // Cari user by username/email
         $user = User::where('username', $validated['username'])
                     ->orWhere('email', $validated['username'])
                     ->first();
 
-        // Cek user ada dan password cocok
         if (!$user || !Hash::check($validated['password'], $user->password)) {
+            $this->logActivity('login_failed', $user ?? new User(['username'=>$validated['username']]), $validated['user_type']);
             return back()->withErrors([
-                'username' => 'Username atau password tidak valid.',
+                'loginError' => '❌ Username atau password tidak valid.',
             ])->withInput($request->except('password'));
         }
 
-        // Cek apakah akun aktif
         if (!$user->is_active) {
             return back()->withErrors([
-                'username' => 'Akun Anda tidak aktif. Hubungi administrator.',
+                'loginError' => '⚠️ Akun Anda tidak aktif. Hubungi administrator.',
             ])->withInput($request->except('password'));
         }
 
-        // ===== VALIDASI ROLE SESUAI TAB YANG DIPILIH =====
-        
-        if ($validated['user_type'] === 'admin') {
-            // Tab Admin: hanya admin yang boleh login
-            if (!$user->isAdmin()) {
-                return back()->withErrors([
-                    'username' => '❌ Anda tidak memiliki akses sebagai Admin. Silakan pilih tab "As User".',
-                ])->withInput($request->except('password'));
-            }
-        } else {
-            // Tab User: hanya user biasa yang boleh login (bukan admin)
-            if ($user->isAdmin()) {
-                return back()->withErrors([
-                    'username' => '❌ Akun Admin tidak bisa login sebagai User. Silakan pilih tab "As Admin".',
-                ])->withInput($request->except('password'));
-            }
+        // Validasi role sesuai tab
+        if ($validated['user_type'] === 'admin' && !$user->isAdmin()) {
+            return back()->withErrors([
+                'loginError' => '❌ Anda tidak memiliki akses sebagai Admin. Silakan pilih tab "User".',
+            ])->withInput($request->except('password'));
         }
 
-        // Login user
+        if ($validated['user_type'] === 'user' && $user->isAdmin()) {
+            return back()->withErrors([
+                'loginError' => '❌ Akun Admin tidak bisa login sebagai User. Silakan pilih tab "Admin".',
+            ])->withInput($request->except('password'));
+        }
+
+        // Login sukses
         Auth::login($user);
         $request->session()->regenerate();
 
-        // Log activity
-        $this->logActivity('user_login', $user, $validated['user_type']);
+        $this->logActivity('login_success', $user, $validated['user_type']);
 
-        // Redirect berdasarkan user_type
-        if ($validated['user_type'] === 'admin') {
-            return redirect()->route('admin.dashboard')
-                             ->with('success', '✅ Selamat datang, Admin ' . $user->name . '!');
-        }
-
-        // Redirect ke user dashboard
-        return redirect()->route('user.dashboard')
-                         ->with('success', '✅ Selamat datang, ' . $user->name . '!');
+        return $validated['user_type'] === 'admin'
+            ? redirect()->route('admin.dashboard')->with('success', '✅ Selamat datang, Admin ' . $user->name . '!')
+            : redirect()->route('user.dashboard')->with('success', '✅ Selamat datang, ' . $user->name . '!');
     }
 
     /**
@@ -101,26 +84,28 @@ class LoginController extends Controller
      */
     public function logout(Request $request)
     {
+        $user = Auth::user();
+        $this->logActivity('logout', $user, $user?->isAdmin() ? 'admin' : 'user');
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login')
-                         ->with('success', '👋 Anda telah logout.');
+        return redirect()->route('login')->with('success', '👋 Anda telah logout.');
     }
 
     /**
      * Log user activity
      */
-    private function logActivity(string $activity, User $user, string $userType)
+    private function logActivity(string $activity, ?User $user, string $userType)
     {
         \Log::info("Activity: $activity", [
-            'user_id' => $user->id,
-            'username' => $user->username,
-            'role' => $user->role,
-            'login_as' => $userType, // 'admin' atau 'user'
-            'ip' => request()->ip(),
-            'user_agent' => request()->userAgent(),
+            'user_id'   => $user?->id,
+            'username'  => $user?->username,
+            'role'      => $user?->role,
+            'login_as'  => $userType,
+            'ip'        => request()->ip(),
+            'user_agent'=> request()->userAgent(),
             'timestamp' => now(),
         ]);
     }

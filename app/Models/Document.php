@@ -10,6 +10,7 @@ class Document extends Model
 {
     protected $fillable = [
         'room_id',
+        'proker_id',
         'title',
         'document_type',
         'file_path',
@@ -23,6 +24,11 @@ class Document extends Model
         return $this->belongsTo(Room::class);
     }
 
+    public function proker(): BelongsTo
+    {
+        return $this->belongsTo(Proker::class, 'proker_id');
+    }
+
     public function statuses(): HasMany
     {
         return $this->hasMany(DocumentStatus::class);
@@ -32,4 +38,9 @@ class Document extends Model
     {
         return $this->hasOne(DocumentStatus::class)->latest('created_at');
     }
+    public function submitter(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'submitted_by');
+    }
+
 }

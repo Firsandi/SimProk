@@ -3,8 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Document;
+use App\Models\Proker;
+use App\Models\RoomMember;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+
+
 
 
 class Room extends Model
@@ -17,19 +21,27 @@ class Room extends Model
         'organization_type',
         'admin_id',
         'status',
-        'room_type',
     ];
 
-    public function getDocumentStatus()
+    /**
+     * Relasi ke dokumen
+     */
+    public function documents()
     {
-        return [
-            'approved' => $approved,
-            'pending'  => $pending,
-            'rejected' => $rejected,
-            'total'    => $approved + $pending + $rejected,
-        ];
+        return $this->hasMany(Document::class);
     }
 
+    /**
+     * Relasi ke proker
+     */
+    public function prokers()
+    {
+        return $this->hasMany(Proker::class, 'room_id');
+    }
+
+    /**
+     * Statistik dokumen berdasarkan status
+     */
     public function getDocumentStats(): array
     {
         return [
@@ -39,24 +51,26 @@ class Room extends Model
         ];
     }
 
+    /**
+     * Hitung notifikasi terbaru (dokumen pending)
+     */
     public function getRecentNotificationCount(): int
     {
         return $this->documents()
-            ->whereHas('latestStatus', fn($q) 
-            => $q->where('status', 'pending'))
+            ->whereHas('latestStatus', fn($q) => $q->where('status', 'pending'))
             ->count();
     }
-
-
-    public function documents()
+        public function members()
     {
-        return $this->hasMany(Document::class);
+        return $this->hasMany(RoomMember::class);
     }
+    
 
-    public function prokers()
+        public function joinedRooms(): BelongsToMany
     {
-        return $this->hasMany(Proker::class, 'room_id');
+        return $this->belongsToMany(Room::class, 'room_members', 'user_id', 'room_id')
+                    ->withPivot('role')
+                    ->withTimestamps();
     }
-
 
 }
