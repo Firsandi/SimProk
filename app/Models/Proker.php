@@ -23,6 +23,11 @@ class Proker extends Model
         return $this->belongsTo(Room::class, 'room_id');
     }
 
+    public function members()
+    {
+        return $this->belongsToMany(User::class, 'proker_members', 'proker_id', 'user_id')->withTimestamps();
+    }
+
     public function documents()
     {
         return $this->hasMany(Document::class, 'proker_id');

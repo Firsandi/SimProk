@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Document extends Model
 {
@@ -19,14 +20,18 @@ class Document extends Model
         'notes',
     ];
 
+    protected $casts = [
+        'submitted_at' => 'datetime',
+    ];
+
     public function room(): BelongsTo
     {
-        return $this->belongsTo(Room::class);
+        return $this->belongsTo(Room::class, 'room_id');
     }
 
     public function proker(): BelongsTo
     {
-        return $this->belongsTo(Proker::class, 'proker_id');
+        return $this->belongsTo(RoomProker::class, 'proker_id');
     }
 
     public function statuses(): HasMany
@@ -34,13 +39,13 @@ class Document extends Model
         return $this->hasMany(DocumentStatus::class);
     }
 
-    public function latestStatus()
+    public function latestStatus(): HasOne
     {
         return $this->hasOne(DocumentStatus::class)->latest('created_at');
     }
+
     public function submitter(): BelongsTo
     {
         return $this->belongsTo(User::class, 'submitted_by');
     }
-
 }

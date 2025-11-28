@@ -18,7 +18,7 @@ class UserSeeder extends Seeder
             'name' => 'Admin Bendahara',
             'username' => 'admin bendahara',
             'email' => 'adminbend@fasilkom.unej.ac.id',
-            'password' => Hash::make('minbend123'),
+            'password' => Hash::make('admin1'),
             'role' => 'admin',
             'is_active' => true,
         ]);

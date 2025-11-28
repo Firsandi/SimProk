@@ -3,47 +3,63 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Services\DashboardService;
-use App\Services\TimelineService; // <--- 1. Tambahkan Import ini
+use App\Models\Room;
+use App\Models\DocumentStatus;
 
 class AdminController extends Controller
 {
-    private DashboardService $dashboardService;
-    private TimelineService $timelineService; // <--- 2. Tambahkan Property ini
-
-    // 3. Update Constructor untuk inject TimelineService
-    public function __construct(
-        DashboardService $dashboardService,
-        TimelineService $timelineService
-    ) {
-        $this->dashboardService = $dashboardService;
-        $this->timelineService = $timelineService;
-    }
-
-    public function dashboard()
+    public function index()
     {
-        $stats   = $this->dashboardService->getStats();
-        $rooms   = $this->dashboardService->getRoomsWithStats();
-        $periods = $this->dashboardService->getPeriods();
+        // Statistik umum
+        $totalRooms = Room::where('status', 'active')->count();
+        $approved   = DocumentStatus::where('status', 'approved')->count();
+        $pending    = DocumentStatus::where('status', 'pending')->count();
+        $rejected   = DocumentStatus::whereIn('status', ['rejected', 'revision'])->count();
+
+        $stats = [
+            'total_ukm' => $totalRooms,
+            'approved'  => $approved,
+            'pending'   => $pending,
+            'rejected'  => $rejected,
+        ];
+
+        // Periode
+        $periods = Room::distinct()
+                       ->pluck('period')
+                       ->sort()
+                       ->reverse()
+                       ->toArray();
+
+        // Rooms dengan statistik
+        $rooms = Room::with(['documents.latestStatus'])
+                     ->where('status', 'active')
+                     ->latest()
+                     ->get()
+                     ->map(function ($room) {
+                         $s    = $room->getDocumentStats();
+                         $notif = $room->getRecentNotificationCount();
+
+                         return [
+                             'id'       => $room->id,
+                             'name'     => $room->name,
+                             'period'   => $room->period,
+                             'status'   => $room->status,
+                             'color'    => $room->color ?? 'blue',
+                             'approved' => $s['approved'],
+                             'pending'  => $s['pending'],
+                             'rejected' => $s['rejected'],
+                             'notification'     => $notif > 0 ? "$notif Dokumen baru" : "Tidak ada perubahan",
+                             'has_notification' => $notif > 0,
+                         ];
+                     });
 
         return view('admin.dashboard', compact('stats','rooms','periods'));
     }
 
-    // 4. Update Method timeline() agar mengirim data
     public function timeline()
     {
-        // Ambil data dari service
-        $timelines = $this->timelineService->getTimelines();
-        
-        // Format data agar sesuai dengan view (untuk icon, warna, dll)
-        $timeline_items = $this->timelineService->formatTimelines($timelines);
-
-        // Kirim ke view
-        return view('admin.timeline', [
-            'timeline_items' => $timeline_items,
-            'timelines' => $timelines,
-        ]);
+        // sementara kosong atau isi manual nanti
+        return view('admin.timeline', ['timeline_items' => [], 'timelines' => []]);
     }
 
     public function documents()

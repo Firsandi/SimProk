@@ -53,32 +53,24 @@ class User extends Authenticatable
         return $this->hasMany(DocumentStatus::class, 'reviewed_by');
     }
 
-    // Relasi ke proker via tabel pivot proker_members (jika kamu pakai tabel ini)
-    public function prokers(): BelongsToMany
-    {
-        return $this->belongsToMany(Proker::class, 'proker_members', 'user_id', 'proker_id')
-                    ->withPivot('role')
-                    ->withTimestamps();
-    }
 
-    // Relasi elegan: ambil semua proker milik user via room_members → room_prokers
-    public function ownedProkers()
-    {
-        return $this->hasManyThrough(
-            RoomProker::class,
-            RoomMember::class,
-            'user_id',     // Foreign key di RoomMember
-            'room_id',     // Foreign key di RoomProker
-            'id',          // Local key di User
-            'room_id'      // Local key di RoomMember
-        );
-    }
+    // ========== TAMBAHAN BARU DI BAWAH INI ==========
 
-    // Relasi ke RoomMember (keanggotaan user di room)
+    /**
+     * Relasi ke RoomMember (user sebagai member di room)
+     */
     public function roomMemberships(): HasMany
     {
         return $this->hasMany(RoomMember::class, 'user_id');
     }
+        /**
+     * Proker yang di-buat/di-miliki user
+     */
+    public function ownedProkers(): HasMany
+    {
+        return $this->hasMany(RoomProker::class, 'user_id');
+    }
+
 
     // Notifikasi milik user
     public function notifications(): HasMany
