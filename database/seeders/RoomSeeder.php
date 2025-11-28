@@ -15,7 +15,6 @@ class RoomSeeder extends Seeder
             'organization_type' => 'ormawa',
             'admin_id' => 1,
             'status' => 'active',
-            'room_type' => 'bendahara',
         ]);
         Room::create([
             'name' => 'HIMASIF',
@@ -23,7 +22,6 @@ class RoomSeeder extends Seeder
             'organization_type' => 'ormawa',
             'status' => 'active',
             'admin_id' => 1, 
-            'room_type' => 'bendahara',
         ]);
         Room::create([
             'name' => 'HIMATIF',
@@ -31,7 +29,6 @@ class RoomSeeder extends Seeder
             'organization_type' => 'ormawa',
             'admin_id' => 1,
             'status' => 'active',
-            'room_type' => 'bendahara',
         ]);
         Room::create([
             'name' => 'HMIF',
@@ -39,7 +36,6 @@ class RoomSeeder extends Seeder
             'organization_type' => 'ormawa',
             'admin_id' => 1,
             'status' => 'active',
-            'room_type' => 'bendahara',
         ]);
     }
 }

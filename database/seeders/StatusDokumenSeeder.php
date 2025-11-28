@@ -3,29 +3,26 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
+use App\Models\DocumentStatus;
 
-class StatusDokumenSeeder extends Seeder
+class DocumentStatusSeeder extends Seeder
 {
     public function run(): void
     {
-        DB::table('status_dokumen')->insert([
-            [
-                'status_awal' => null,
-                'status_baru' => 'draft',
-                'komentar' => 'Masih dalam tahap awal',
-                'id_dokumen' => 1,
-                'id_pengguna' => 1,
-                'waktu_perubahan' => now(),
-            ],
-            [
-                'status_awal' => 'draft',
-                'status_baru' => 'final',
-                'komentar' => 'Sudah disetujui',
-                'id_dokumen' => 2,
-                'id_pengguna' => 2,
-                'waktu_perubahan' => now(),
-            ],
+        DocumentStatus::create([
+            'document_id' => 1,
+            'status' => 'revision',
+            'reviewed_by' => 1,
+            'notes' => 'Perlu revisi rundown dan anggaran',
+            'reviewed_at' => now(),
+        ]);
+
+        DocumentStatus::create([
+            'document_id' => 2,
+            'status' => 'approved',
+            'reviewed_by' => 1,
+            'notes' => 'Sudah disetujui oleh admin',
+            'reviewed_at' => now(),
         ]);
     }
 }

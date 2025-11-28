@@ -6,7 +6,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;  // TAMBAHAN
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use App\Models\Room;
+use App\Models\RoomProker;
+use App\Models\RoomMember;
+use App\Models\Document;
+use App\Models\DocumentStatus;
+use App\Models\Notification;
+use App\Models\Timeline;
 
 class User extends Authenticatable
 {
@@ -32,32 +39,20 @@ class User extends Authenticatable
         'is_active' => 'boolean',
     ];
 
-    // Relasi yang sudah ada - TIDAK DIUBAH
-    public function rooms(): HasMany
-    {
-        return $this->hasMany(Room::class);
-    }
 
+
+    // Dokumen yang diunggah user
     public function documents(): HasMany
     {
         return $this->hasMany(Document::class, 'submitted_by');
     }
 
+    // Status dokumen yang direview user
     public function documentStatuses(): HasMany
     {
         return $this->hasMany(DocumentStatus::class, 'reviewed_by');
     }
 
-    public function isAdmin(): bool
-    {
-        return in_array($this->role, [
-            'admin',
-            'admin_sekretaris',
-            'admin_bendahara',
-            'sekretaris',
-            'bendahara',
-        ]);
-    }
 
     // ========== TAMBAHAN BARU DI BAWAH INI ==========
 
@@ -68,50 +63,64 @@ class User extends Authenticatable
     {
         return $this->hasMany(RoomMember::class, 'user_id');
     }
-
-    /**
-     * Relasi ke Notification
+        /**
+     * Proker yang di-buat/di-miliki user
      */
+    public function ownedProkers(): HasMany
+    {
+        return $this->hasMany(RoomProker::class, 'user_id');
+    }
+
+
+    // Notifikasi milik user
     public function notifications(): HasMany
     {
         return $this->hasMany(Notification::class, 'user_id');
     }
 
-    /**
-     * Relasi ke Timeline (sebagai actor)
-     */
+    // Timeline aktivitas user
     public function timelines(): HasMany
     {
         return $this->hasMany(Timeline::class, 'actor_id');
     }
 
-    /**
-     * Cek apakah user adalah regular user (bukan admin)
-     */
+    public function joinedRooms(): BelongsToMany
+    {
+        return $this->belongsToMany(Room::class, 'room_members', 'user_id', 'room_id')
+                    ->withTimestamps();
+    }
+
+
+    // Cek apakah user admin
+    public function isAdmin(): bool
+    {
+        return in_array($this->role, [
+            'admin',
+            'wakil_kemahasiswaan_akademik_alumni',
+            'kepala_bagian',
+            'bpp'
+        ]);
+    }
+
+    // Cek apakah user regular (bukan admin)
     public function isRegularUser(): bool
     {
         return !$this->isAdmin();
     }
 
-    /**
-     * Cek apakah user bisa upload dokumen
-     */
+    // Cek apakah user bisa upload dokumen
     public function canUploadDocument(): bool
     {
         return in_array($this->role, ['sekretaris', 'bendahara']);
     }
 
-    /**
-     * Get user's initial untuk avatar
-     */
+    // Ambil inisial nama user
     public function getInitial(): string
     {
         return strtoupper(substr($this->name, 0, 1));
     }
 
-    /**
-     * Get unread notifications count
-     */
+    // Hitung jumlah notifikasi belum dibaca
     public function getUnreadNotificationsCount(): int
     {
         return $this->notifications()
@@ -119,9 +128,7 @@ class User extends Authenticatable
                     ->count();
     }
 
-    /**
-     * Scope: Active users only
-     */
+    // Scope untuk filter user aktif
     public function scopeActive($query)
     {
         return $query->where('is_active', true);

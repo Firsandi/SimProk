@@ -2,71 +2,133 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class Timeline extends Model
+class User extends Authenticatable
 {
+    use HasFactory, Notifiable;
+
+    /*
+    |--------------------------------------------------------------------------
+    | Attributes
+    |--------------------------------------------------------------------------
+    */
+
     protected $fillable = [
-        'room_id',
-        'activity_type', // document_uploaded, document_approved, document_revision, room_created, member_added
-        'title',
-        'description',
-        'actor_id',
-        'document_id',
+        'name',
+        'username',
+        'email',
+        'password',
+        'role',
+        'is_active',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
     ];
 
     protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
+        'email_verified_at' => 'datetime',
+        'password'          => 'hashed',
+        'is_active'         => 'boolean',
     ];
 
-    /**
-     * Relationships
-     */
-    public function room(): BelongsTo
+    /*
+    |--------------------------------------------------------------------------
+    | Relationships
+    |--------------------------------------------------------------------------
+    */
+
+    // Dokumen yang diunggah user
+    public function documents(): HasMany
     {
-        return $this->belongsTo(Room::class);
+        return $this->hasMany(Document::class, 'submitted_by');
     }
 
-    public function actor(): BelongsTo
+    // Status dokumen yang direview user
+    public function documentStatuses(): HasMany
     {
-        return $this->belongsTo(User::class, 'actor_id');
+        return $this->hasMany(DocumentStatus::class, 'reviewed_by');
     }
 
-    public function document(): BelongsTo
+    // Relasi ke RoomMember (user sebagai member di room)
+    public function roomMemberships(): HasMany
     {
-        return $this->belongsTo(Document::class);
+        return $this->hasMany(RoomMember::class, 'user_id');
     }
 
-    /**
-     * Get icon class untuk activity type
-     * (Fungsi ini dipanggil oleh TimelineService)
-     */
-    public function getActivityIcon(): string
+    // Rooms yang diikuti user (many-to-many via room_members)
+    public function joinedRooms(): BelongsToMany
     {
-        return match($this->activity_type) {
-            'document_approved' => 'check',
-            'document_uploaded' => 'upload',
-            'document_revision' => 'times',
-            'room_created' => 'plus',
-            'member_added' => 'user-plus',
-            default => 'circle',
-        };
+        return $this->belongsToMany(Room::class, 'room_members', 'user_id', 'room_id')
+                    ->withPivot('role')
+                    ->withTimestamps();
     }
 
-    /**
-     * Get color class untuk activity type
-     * (Fungsi ini dipanggil oleh TimelineService)
-     */
-    public function getActivityColor(): string
+    // Notifikasi milik user (kalau kamu punya tabel notifications custom)
+    public function notifications(): HasMany
     {
-        return match($this->activity_type) {
-            'document_approved' => 'green',
-            'document_uploaded' => 'blue',
-            'document_revision' => 'red',
-            'room_created' => 'purple',
-            'member_added' => 'orange',
-            default => 'gray',
-        };
+        return $this->hasMany(Notification::class, 'user_id');
+    }
+
+    // Timeline aktivitas user
+    public function timelines(): HasMany
+    {
+        return $this->hasMany(Timeline::class, 'actor_id');
+    }
+
+    // Proker yang dibuat user (relasi ke RoomProker)
+    public function roomProkers(): HasMany
+    {
+        return $this->hasMany(RoomProker::class, 'user_id');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Helpers / Business Logic
+    |--------------------------------------------------------------------------
+    */
+
+    public function isAdmin(): bool
+    {
+        return in_array($this->role, [
+            'admin',
+            'wakil_kemahasiswaan_akademik_alumni',
+            'kepala_bagian',
+            'bpp',
+        ]);
+    }
+
+    public function isRegularUser(): bool
+    {
+        return ! $this->isAdmin();
+    }
+
+    public function canUploadDocument(): bool
+    {
+        return in_array($this->role, ['sekretaris', 'bendahara']);
+    }
+
+    public function getInitial(): string
+    {
+        return strtoupper(substr($this->name, 0, 1));
+    }
+
+    public function getUnreadNotificationsCount(): int
+    {
+        return $this->notifications()
+                    ->whereNull('read_at')
+                    ->count();
+    }
+
+    // Scope: hanya user aktif
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
     }
 }

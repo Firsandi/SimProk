@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Room;
-use App\Models\Proker;
+use App\Models\RoomProker;
 
 class ProkerController extends Controller
 {
@@ -14,9 +14,13 @@ class ProkerController extends Controller
      */
     public function index(Room $room)
     {
+        // Proker milik room ini
         $prokers = $room->prokers()->latest()->get();
+
+        // Anggota room untuk kebutuhan lain (mis. filter di view)
         $anggotaRoom = $room->members()->orderBy('name')->get();
-        return view('admin.room.proker.index', compact('room', 'prokers','anggotaRoom'));
+
+        return view('admin.room.proker.index', compact('room', 'prokers', 'anggotaRoom'));
     }
 
     /**
@@ -24,81 +28,116 @@ class ProkerController extends Controller
      */
     public function create(Room $room)
     {
-        return view('admin.room.proker.create', compact('room'));
+        // List anggota room untuk dropdown di form create
+        $anggotaRoom = $room->members()->orderBy('name')->get();
+
+        return view('admin.room.proker.create', compact('room', 'anggotaRoom'));
     }
 
     /**
      * Simpan data proker baru.
      */
-    public function store(Request $request, Room $room, Proker $proker)
+    public function store(Request $request, Room $room)
     {
-        $request->validate([
+        $validated = $request->validate([
             'nama_proker' => 'required|string|max:255',
-            'tahun' => 'required|integer|min:2000|max:2100',
-            'deskripsi' => 'nullable|string',
-            'members'     => 'nullable|array',
-            'members.*'   => 'exists:users,id',
-        ]);
-
-        $room->prokers()->create([
-            'nama_proker' => $request->nama_proker,
-            'tahun' => $request->tahun,
-            'deskripsi' => $request->deskripsi,
-        ]);
-
-        if ($request->filled('members')) {
-        $proker->members()->attach($request->members);
-        }
-
-        return redirect()->route('admin.room.proker.index', $room->id)->with('success', 'Program kerja berhasil ditambahkan.');
-    }
-
-
-    public function edit(Room $room, Proker $proker)
-    {
-        $anggotaRoom = $room->members()->orderBy('name')->get();
-        $roles = ['bendahara', 'sekretaris'];
-        return view('admin.room.proker.edit', compact('room', 'proker','anggotaRoom','roles'));
-    }
-
-    public function update(Request $request, Room $room, Proker $proker)
-    {
-        $request->validate([
-            'nama_proker' => 'required|string|max:100',
-            'tahun'       => 'required|integer',
+            'tahun'       => 'required|integer|min:1900|max:2100',
             'deskripsi'   => 'nullable|string',
-            'members' => 'nullable|array',
-            'members.*.user_id' => 'required|exists:users,id',
+            'member_id'   => 'nullable|exists:users,id', // sementara belum dipakai
         ]);
 
-       $proker->update([
-        'nama_proker' => $request->nama_proker,
-        'tahun'       => $request->tahun,
-        'deskripsi'   => $request->deskripsi,
+        $proker = $room->prokers()->create([
+            'nama_proker' => $validated['nama_proker'],
+            'tahun'       => $validated['tahun'],
+            'deskripsi'   => $validated['deskripsi'] ?? null,
+            'user_id'     => auth()->id(), // creator
         ]);
 
-         if ($request->filled('member_id')) {
-        $proker->members()->sync([$request->member_id]);
-        } else { 
-            $proker->members()->detach(); // kosongkan kalau tidak dipilih
-        }
+        // BELUM ada relasi khusus anggota proker -> tidak ada attach/sync di sini
 
-        return redirect()->route('admin.room.proker.show',['room'=>$room->id, $proker->id])->with('success', 'Proker berhasil diperbarui');
+        return redirect()
+            ->route('admin.room.proker.index', $room->id)
+            ->with('success', 'Program kerja berhasil ditambahkan.');
     }
 
-    public function show(Room $room, Proker $proker)
+    /**
+     * Form edit proker.
+     * Pastikan $proker memang milik $room.
+     */
+    public function edit(Room $room, RoomProker $proker)
     {
-        $members = $proker->members()->get();
+        if ($proker->room_id !== $room->id) {
+            abort(404);
+        }
+
+        // daftar anggota room untuk dropdown
+        $anggotaRoom = $room->members()->orderBy('name')->get();
+
+        return view('admin.room.proker.edit', compact('room', 'proker', 'anggotaRoom'));
+    }
+
+    /**
+     * Update proker.
+     */
+    public function update(Request $request, Room $room, RoomProker $proker)
+    {
+        if ($proker->room_id !== $room->id) {
+            abort(404);
+        }
+
+        $validated = $request->validate([
+            'nama_proker' => 'required|string|max:255',
+            'tahun'       => 'required|integer|min:1900|max:2100',
+            'deskripsi'   => 'nullable|string',
+            'member_id'   => 'nullable|exists:users,id', // sementara belum dipakai
+        ]);
+
+        $proker->update([
+            'nama_proker' => $validated['nama_proker'],
+            'tahun'       => $validated['tahun'],
+            'deskripsi'   => $validated['deskripsi'] ?? null,
+        ]);
+
+        // TIDAK ada lagi pemanggilan $proker->members()
+
+        return redirect()
+            ->route('admin.room.proker.show', [$room->id, $proker->id])
+            ->with('success', 'Proker berhasil diperbarui.');
+    }
+
+    /**
+     * Detail proker.
+     */
+    public function show($room_id, $proker_id)
+    {
+        // load room + anggota room
+        $room   = Room::with('members')->findOrFail($room_id);
+        $proker = RoomProker::findOrFail($proker_id);
+
+        // keamanan: pastikan proker milik room
+        if ($proker->room_id !== $room->id) {
+            abort(404);
+        }
+
+        // Untuk sekarang, anggota proker = anggota room
+        $members = $room->members;
 
         return view('admin.room.proker.show', compact('room', 'proker', 'members'));
     }
 
-    public function destroy($roomId, $prokerId)
+    /**
+     * Hapus proker.
+     */
+    public function destroy(Room $room, RoomProker $proker)
     {
+        if ($proker->room_id !== $room->id) {
+            abort(404);
+        }
+
         $proker->delete();
 
-        return redirect()->route('admin.room.proker.index', $roomId)->with('success', 'Proker berhasil dihapus');
+        return redirect()
+            ->route('admin.room.proker.index', $room->id)
+            ->with('success', 'Proker berhasil dihapus.');
     }
-
-
 }

@@ -3,47 +3,65 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Document;
+use App\Models\DocumentStatus;
+use App\Models\Notification;
 
 class UserDashboardController extends Controller
 {
+    /**
+     * Dashboard utama user
+     */
     public function index()
     {
-        $user = Auth::user();
+        $user = auth()->user();
 
-        // Dummy data untuk testing
-        $userRooms = [
-            [
-                'id' => 1,
-                'name' => 'HMIF (Himpunan Mahasiswa Informatika)',
-                'role' => 'Sekretaris',
-                'period' => '2024/2025',
-                'admin' => 'Ahmad Rizki',
-                'members' => 15,
-                'color' => 'blue',
-                'documents' => [
-                    [
-                        'title' => 'Proposal Workshop Web Dev',
-                        'status' => 'Menunggu Review',
-                        'deadline' => '30 Nov 2024'
-                    ],
-                ]
-            ],
-        ];
+        // Statistik milik user
+        $totalProkers = $user->ownedProkers()->count(); // jumlah proker milik user
+        $totalDocs    = $user->documents()->count();    // jumlah dokumen yang diunggah user
+        $pending      = DocumentStatus::where('status', 'pending')
+                                      ->where('reviewed_by', $user->id)
+                                      ->count();        // jumlah dokumen pending yang direview user
 
-        $totalDocuments = 8;
-        $pendingDocuments = 3;
-        $upcomingDeadlines = 2;
-        $recentDocuments = [];
-        $upcomingDeadlinesList = [];
+        // Preview data untuk dashboard
+        $myProkers = $user->ownedProkers()
+                          ->with('documents')
+                          ->latest()
+                          ->take(3)
+                          ->get();
+
+        $recentDocs = $user->documents()
+                           ->latest()
+                           ->take(5)
+                           ->get();
+
+        $notifications = $user->notifications()
+                              ->latest()
+                              ->take(5)
+                              ->get();
 
         return view('user.Dashboard', compact(
-            'userRooms',
-            'totalDocuments',
-            'pendingDocuments',
-            'upcomingDeadlines',
-            'recentDocuments',
-            'upcomingDeadlinesList'
+            'totalProkers',
+            'totalDocs',
+            'pending',
+            'myProkers',
+            'recentDocs',
+            'notifications'
         ));
+    }
+
+    /**
+     * Halaman My Prokers (semua proker milik user)
+     */
+    public function myProkers()
+    {
+        $user = auth()->user();
+
+        $myProkers = $user->ownedProkers()
+                          ->with(['documents', 'room']) // kalau butuh info organisasi
+                          ->latest()
+                          ->get();
+
+        return view('user.MyProkers', compact('myProkers'));
     }
 }

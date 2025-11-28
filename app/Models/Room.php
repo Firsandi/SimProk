@@ -4,8 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use App\Models\Document;
-
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Room extends Model
 {
@@ -17,60 +16,44 @@ class Room extends Model
         'organization_type',
         'admin_id',
         'status',
-        'room_type',
     ];
 
-    public function getDocumentStatus()
+    public function documents(): HasMany
     {
-        return [
-            'approved' => $approved,
-            'pending'  => $pending,
-            'rejected' => $rejected,
-            'total'    => $approved + $pending + $rejected,
-        ];
+        return $this->hasMany(Document::class, 'room_id');
     }
 
-    public function getDocumentStats(): array
+    public function prokers(): HasMany
     {
-        return [
-            'approved' => $this->documents()->whereHas('latestStatus', fn($q) => $q->where('status', 'approved'))->count(),
-            'pending'  => $this->documents()->whereHas('latestStatus', fn($q) => $q->where('status', 'pending'))->count(),
-            'rejected' => $this->documents()->whereHas('latestStatus', fn($q) => $q->whereIn('status', ['rejected', 'revision']))->count(),
-        ];
+        return $this->hasMany(RoomProker::class, 'room_id');
     }
 
-    public function getRecentNotificationCount(): int
-    {
-        return $this->documents()
-            ->whereHas('latestStatus', fn($q) 
-            => $q->where('status', 'pending'))
-            ->count();
-    }
-
-
-    public function documents()
-    {
-        return $this->hasMany(Document::class);
-    }
-
-    public function prokers()
-    {
-        return $this->hasMany(Proker::class, 'room_id');
-    }
-
-        public function members()
+    public function members(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'room_members', 'room_id', 'user_id')
                     ->withPivot('role')
                     ->withTimestamps();
     }
 
-        public function rooms()
+    public function getDocumentStats(): array
     {
-        return $this->belongsToMany(Room::class, 'room_members', 'user_id', 'room_id')
-                    ->withPivot('role')
-                    ->withTimestamps();
+        return [
+            'approved' => $this->documents()
+                ->whereHas('latestStatus', fn($q) => $q->where('status', 'approved'))
+                ->count(),
+            'pending'  => $this->documents()
+                ->whereHas('latestStatus', fn($q) => $q->where('status', 'pending'))
+                ->count(),
+            'rejected' => $this->documents()
+                ->whereHas('latestStatus', fn($q) => $q->whereIn('status', ['rejected', 'revision']))
+                ->count(),
+        ];
     }
 
-
+    public function getRecentNotificationCount(): int
+    {
+        return $this->documents()
+            ->whereHas('latestStatus', fn($q) => $q->where('status', 'pending'))
+            ->count();
+    }
 }

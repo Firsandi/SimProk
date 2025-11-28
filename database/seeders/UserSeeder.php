@@ -22,7 +22,7 @@ class UserSeeder extends Seeder
             'role' => 'admin',
             'is_active' => true,
         ]);
-        user::create([
+        User::create([
             'name' => 'User Biasa',
             'username' => 'user biasa',
             'email' => 'firsandi@fasilkom.unej.ac.id',
@@ -30,6 +30,24 @@ class UserSeeder extends Seeder
             'role' => 'user',
             'is_active' => true,
         ]);
+        User::create([
+            'name' => 'Sekretaris',
+            'username' => 'sekretaris',
+            'email' => 'sekretaris@fasilkom.unej.ac.id',
+            'password' => Hash::make('sekretaris123'),
+            'role' => 'sekretaris',
+            'is_active' => true,
+        ]);
+
+        User::create([
+            'name' => 'Bendahara',
+            'username' => 'bendahara',
+            'email' => 'bendahara@fasilkom.unej.ac.id',
+            'password' => Hash::make('bendahara123'),
+            'role' => 'bendahara',
+            'is_active' => true,
+        ]);
+
 
     }
 }

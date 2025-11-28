@@ -8,10 +8,9 @@ use App\Models\Room;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
-
 class RoomMemberController extends Controller
 {
-    public function index(Request $request,Room $room)
+    public function index(Request $request, Room $room)
     {
         $members = $room->members()->orderBy('name')->get();
         return view('admin.room.member.index', compact('room','members'));
@@ -23,30 +22,30 @@ class RoomMemberController extends Controller
         return view('admin.room.member.create', compact('room','roles'));
     }
 
-    public function store(Request $request, Room $room )
+    public function store(Request $request, Room $room)
     {
-        $request->validate([
-        'name' => 'required|string|max:255',
-        'username' => 'required|string|max:50|unique:users,username',
-        'email' => 'required|email|unique:users,email',
-        'role' => 'required|string',
-    ]);
+        $validated = $request->validate([
+            'name'                  => 'required|string|max:255',
+            'username'              => 'required|string|max:50|unique:users,username',
+            'email'                 => 'required|email|unique:users,email',
+            'password'              => 'required|string|min:6|confirmed',
+            'role'                  => 'required|in:bendahara,sekretaris',
+        ]);
 
-    // buat user baru
-    $user = User::create([
-        'name'     => $request->name,
-        'username' => $request->username,
-        'email'    => $request->email,
-        'password' => Hash::make('password'), // default password, bisa diganti
-        'role'     => 'user',             // default role
-        'is_active'=> true,  
-    ]);
+        $user = User::create([
+            'name'      => $validated['name'],
+            'username'  => (string) $validated['username'],
+            'email'     => $validated['email'],
+            'password'  => Hash::make($validated['password']),
+            'role'      => $validated['role'],
+            'is_active' => true,  
+        ]);
 
-    // attach ke room dengan role
-    $room->members()->attach($user->id, ['role' => $request->role,
-    ]);
+        $room->members()->attach($user->id, ['role' => $validated['role']]);
 
-    return redirect()->route('admin.room.member.index', $room->id)->with('success', 'Anggota berhasil ditambahkan.');
+        return redirect()
+            ->route('admin.room.member.index', $room->id)
+            ->with('success', 'Anggota berhasil ditambahkan ke room.');
     }
 
     public function edit(Room $room)
@@ -56,7 +55,7 @@ class RoomMemberController extends Controller
 
     public function update(Request $request, Room $room)
     {
-       //
+        //
     }
 
     public function destroy(Room $room)
@@ -64,4 +63,3 @@ class RoomMemberController extends Controller
         //
     }
 }
-

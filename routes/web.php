@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\User\UserDashboardController;
-use App\Http\Controllers\User\RoomController as UserRoomController;
+use App\Http\Controllers\User\RoomController;
 use App\Http\Controllers\User\DocumentController;
 use App\Http\Controllers\User\NotificationController;
 use App\Http\Controllers\Admin\RoomController as AdminRoomController;
@@ -18,7 +18,7 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 
 Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+    Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
 
     // Room resource
     Route::resource('room', AdminRoomController::class);
@@ -44,17 +44,24 @@ Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function
 });
 
 
-// User routes
-Route::middleware('role:user')->prefix('user')->name('user.')->group(function () {
+Route::prefix('user')->name('user.')->group(function () {
     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
-    
     Route::get('/rooms', [UserRoomController::class, 'index'])->name('rooms');
     Route::get('/room/{id}', [UserRoomController::class, 'show'])->name('room.detail');
-    Route::get('/documents', [DocumentController::class, 'index'])->name('documents')->middleware('verificationStats:verified');
+    Route::get('/documents', [DocumentController::class, 'index'])->name('documents');
     Route::get('/document/create/{roomId}', [DocumentController::class, 'create'])->name('document.create');
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
-    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread-count');
-    Route::get('/timeline', fn() => view('user.timeline'))->name('timeline');
     Route::get('/profile', fn() => view('user.Profile'))->name('profile');
+    Route::get('/myprokers', [UserDashboardController::class, 'myProkers'])->name('myprokers');
 
 });
+
+// Route::middleware(['auth', 'role:sekretaris,bendahara'])->prefix('user')->name('user.')->group(function () {
+//     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
+//     Route::get('/rooms', [RoomController::class, 'index'])->name('rooms');
+//     Route::get('/room/{id}', [RoomController::class, 'show'])->name('room.detail');
+//     Route::get('/documents', [DocumentController::class, 'index'])->name('documents');
+//     Route::get('/document/create/{roomId}', [DocumentController::class, 'create'])->name('document.create');
+//     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
+//     Route::get('/profile', fn() => view('user.profile'))->name('profile');
+// });

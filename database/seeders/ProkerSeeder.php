@@ -3,37 +3,34 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
+use App\Models\RoomProker;
 
 class ProkerSeeder extends Seeder
 {
     public function run(): void
     {
-        DB::table('room_proker')->insert([
-            [
-                'nama_proker' => 'Pembinaan dan Pengembangan Mahasiswa Baru (PPMB)',
-                'tahun' => 2025,
-                'deskripsi' => 'Pengenalan mengenai FASILKOM kepada Mahasiswa Baru',
-                'room_id' => 1,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'nama_proker' => 'Technology Innovative Challenge (TIC)',
-                'tahun' => 2025,
-                'deskripsi' => 'Workshop dan Lomba Teknologi tingkat Nasional',
-                'room_id' => 3,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'nama_proker' => 'Character Organization Development (COD)',
-                'tahun' => 2025,
-                'deskripsi' => 'Pengembangan karakter pengurus HIMATIF',
-                'room_id' => 3,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
+        RoomProker::create([
+            'room_id'     => 1,
+            'user_id'     => 1, // sesuaikan: id user pembuat proker
+            'nama_proker' => 'PPMB',
+            'deskripsi'   => 'Pengenalan mengenai FASILKOM kepada Mahasiswa Baru',
+            'tahun'       => 2025,
+        ]);
+
+        RoomProker::create([
+            'room_id'     => 1,
+            'user_id'     => 1,
+            'nama_proker' => 'TIC',
+            'deskripsi'   => 'Workshop dan Lomba Teknologi tingkat Nasional',
+            'tahun'       => 2025,
+        ]);
+
+        RoomProker::create([
+            'room_id'     => 1,
+            'user_id'     => 1,
+            'nama_proker' => 'COD',
+            'deskripsi'   => 'Pengembangan karakter pengurus HIMATIF',
+            'tahun'       => 2025,
         ]);
     }
 }
