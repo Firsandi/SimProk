@@ -3,64 +3,76 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\RoomProker;
+use App\Models\RoomMember;
 use App\Models\Document;
-use App\Models\DocumentStatus;
-use App\Models\Notification;
+use Illuminate\Support\Facades\Auth;
 
 class UserDashboardController extends Controller
 {
-    /**
-     * Dashboard utama user
-     */
     public function index()
     {
         $user = auth()->user();
 
-        // Statistik milik user
-        $totalProkers = $user->ownedProkers()->count(); // jumlah proker milik user
-        $totalDocs    = $user->documents()->count();    // jumlah dokumen yang diunggah user
-        $pending      = DocumentStatus::where('status', 'pending')
-                                      ->where('reviewed_by', $user->id)
-                                      ->count();        // jumlah dokumen pending yang direview user
+        // Statistik dashboard
+        $totalRooms   = $user->joinedRooms()->count();
+        $totalDocs    = Document::where('submitted_by', $user->id)->count();
+        $pendingDocs  = Document::where('submitted_by', $user->id)
+                                ->whereDoesntHave('statuses', function ($q) {
+                                    $q->whereIn('status', ['approved', 'rejected']);
+                                })
+                                ->count();
 
-        // Preview data untuk dashboard
-        $myProkers = $user->ownedProkers()
-                          ->with('documents')
-                          ->latest()
-                          ->take(3)
-                          ->get();
+        // Preview proker terbaru (3 proker)
+        $myProkers = RoomProker::whereHas('room.members', function ($q) use ($user) {
+                                $q->where('users.id', $user->id);
+                            })
+                            ->with(['room', 'documents'])
+                            ->latest()
+                            ->take(3)
+                            ->get();
 
-        $recentDocs = $user->documents()
-                           ->latest()
-                           ->take(5)
-                           ->get();
-
-        $notifications = $user->notifications()
-                              ->latest()
-                              ->take(5)
-                              ->get();
+        // Dokumen terbaru (5 dokumen)
+        $recentDocs = Document::where('submitted_by', $user->id)
+                             ->with(['latestStatus', 'room'])
+                             ->latest()
+                             ->take(5)
+                             ->get();
 
         return view('user.Dashboard', compact(
-            'totalProkers',
+            'totalRooms',
             'totalDocs',
-            'pending',
+            'pendingDocs',
             'myProkers',
-            'recentDocs',
-            'notifications'
+            'recentDocs'
         ));
     }
 
-    /**
-     * Halaman My Prokers (semua proker milik user)
-     */
     public function myProkers()
     {
-        $user = auth()->user();
+        $user = Auth::user();
 
-        $myProkers = $user->ownedProkers()
-                          ->with(['documents', 'room']) // kalau butuh info organisasi
-                          ->latest()
-                          ->get();
+        $myProkers = RoomProker::whereHas('room.members', function ($query) use ($user) {
+                                $query->where('users.id', $user->id);
+                            })
+                            ->with(['room', 'documents'])
+                            ->latest()
+                            ->get()
+                            ->map(function ($proker) use ($user) {
+                                // Ambil role user dari room_members
+                                $member = RoomMember::where('room_id', $proker->room_id)
+                                                     ->where('user_id', $user->id)
+                                                     ->first();
+                                
+                                $proker->user_role = $member ? $member->role : 'Anggota';
+
+                                // Hitung progress berdasarkan jumlah dokumen
+                                $proker->progress = $proker->documents->count() > 0 
+                                    ? min(($proker->documents->count() * 25), 100) 
+                                    : 0;
+
+                                return $proker;
+                            });
 
         return view('user.MyProkers', compact('myProkers'));
     }

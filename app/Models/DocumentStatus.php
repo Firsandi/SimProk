@@ -15,9 +15,18 @@ class DocumentStatus extends Model
         'reviewed_at',
     ];
 
+    protected $casts = [
+        'reviewed_at' => 'datetime',
+    ];
+
     public function document(): BelongsTo
     {
         return $this->belongsTo(Document::class);
+    }
+
+    public function reviewer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
     }
 
     public function getStatusColor(): string
@@ -25,13 +34,20 @@ class DocumentStatus extends Model
         return match($this->status) {
             'approved' => 'green',
             'pending' => 'yellow',
-            'revision', 'rejected' => 'red',
+            'revision' => 'blue',
+            'rejected' => 'red',
             default => 'gray',
         };
     }
-    public function reviewer(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'reviewed_by');
-    }
 
+    public function getStatusIcon(): string
+    {
+        return match($this->status) {
+            'approved' => '✅',
+            'pending' => '⏳',
+            'revision' => '🔄',
+            'rejected' => '❌',
+            default => '❓',
+        };
+    }
 }

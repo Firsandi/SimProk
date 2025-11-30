@@ -6,9 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Document extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'room_id',
         'proker_id',
@@ -47,5 +50,18 @@ class Document extends Model
     public function submitter(): BelongsTo
     {
         return $this->belongsTo(User::class, 'submitted_by');
+    }
+
+    // Helper methods
+    public function isPending(): bool
+    {
+        $latest = $this->latestStatus;
+        return !$latest || $latest->status === 'pending';
+    }
+
+    public function canBeRevised(): bool
+    {
+        $latest = $this->latestStatus;
+        return $latest && $latest->status === 'revision';
     }
 }
