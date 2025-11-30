@@ -16,7 +16,6 @@
                 </div>
                 <div class="flex-1">
                     <p class="text-sm font-semibold text-white">{{ auth()->user()->name }}</p>
-                    <p class="text-xs text-gray-400">Mahasiswa HMIF</p>
                 </div>
             </div>
         </div>

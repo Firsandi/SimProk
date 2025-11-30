@@ -90,6 +90,15 @@ class User extends Authenticatable
                     ->withTimestamps();
     }
 
+    // App/Models/User.php
+
+    public function joinedProkers(): BelongsToMany
+    {
+        return $this->belongsToMany(RoomProker::class, 'room_proker_members', 'user_id', 'room_proker_id')
+                    ->withTimestamps();
+    }
+
+
 
     // Cek apakah user admin
     public function isAdmin(): bool

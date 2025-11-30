@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\Notification; // ✅ TAMBAHKAN INI
 use Illuminate\Http\Request;
 
 class NotificationController extends Controller
@@ -13,7 +14,7 @@ class NotificationController extends Controller
             ->latest()
             ->get();
 
-        return view('user.notifications', compact('notifications'));
+        return view('user.Notification', compact('notifications')); // ✅ Pastikan nama view sesuai
     }
 
     public function unreadCount()
