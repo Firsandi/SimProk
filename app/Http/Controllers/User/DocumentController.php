@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\Document;
+use App\Models\DocumentStatus;
 use App\Models\RoomProker;
 use App\Models\RoomMember;
 use Illuminate\Http\Request;
@@ -51,7 +52,7 @@ class DocumentController extends Controller
         return view('user.Document-create', compact('proker', 'room', 'allowedDocs'));
     }
 
-    // Simpan dokumen
+
     public function store(Request $request)
     {
         $request->validate([
@@ -65,7 +66,7 @@ class DocumentController extends Controller
         $proker = RoomProker::findOrFail($request->proker_id);
         $path = $request->file('file')->store("documents/room_{$proker->room_id}/proker_{$proker->id}", 'public');
 
-        Document::create([
+        $document = Document::create([
             'room_id'       => $proker->room_id,
             'proker_id'     => $request->proker_id,
             'title'         => $request->title,
@@ -73,10 +74,19 @@ class DocumentController extends Controller
             'file_path'     => $path,
             'submitted_by'  => auth()->id(),
             'notes'         => $request->notes,
+            'submitted_at'  => now(),
         ]);
 
-        return redirect()->route('user.documents')->with('success', '✅ Dokumen berhasil diunggah.');
+        // ⬇️ Tambahkan status awal: pending
+        DocumentStatus::create([
+            'document_id' => $document->id,
+            'status'      => 'pending',
+        ]);
+
+        return redirect()->route('user.documents')
+                        ->with('success', '✅ Dokumen berhasil diunggah dan menunggu review.');
     }
+
 
     // Lihat detail dokumen
     public function show(Document $document)
@@ -86,7 +96,7 @@ class DocumentController extends Controller
         }
 
         $statuses = $document->statuses()->latest()->get();
-        
+
         return view('user.Document-show', compact('document', 'statuses'));
     }
 
