@@ -44,7 +44,7 @@ class Document extends Model
 
     public function latestStatus(): HasOne
     {
-        return $this->hasOne(DocumentStatus::class)->latest('created_at');
+        return $this->hasOne(DocumentStatus::class)->latestOfMany();
     }
 
     public function submitter(): BelongsTo

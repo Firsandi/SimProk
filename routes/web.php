@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\DocumentAdminController;
 use App\Http\Controllers\Admin\RoomController as AdminRoomController;
 use App\Http\Controllers\Admin\ProkerController;
 use App\Http\Controllers\Admin\RoomMemberController;
@@ -32,12 +33,14 @@ Route::post('/reset-password', [ForgotPasswordController::class, 'reset'])->name
 // ADMIN ROUTES (Middleware: auth + role:admin)
 // ==========================================
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-    
+
     // Dashboard
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
 
-    // Timeline
-    Route::get('/timeline', [AdminController::class, 'timeline'])->name('timeline');
+    //Dokumen
+    Route::get('/dokumen', [\App\Http\Controllers\Admin\DocumentAdminController::class, 'index'])->name('dokumen.index');
+    Route::get('/dokumen/{document}', [\App\Http\Controllers\Admin\DocumentAdminController::class, 'show'])->name('dokumen.show');
+    Route::post('/dokumen/{document}/review', [\App\Http\Controllers\Admin\DocumentAdminController::class, 'review'])->name('dokumen.review');
 
     // Room Management
     Route::resource('room', AdminRoomController::class);
@@ -67,18 +70,18 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 // USER ROUTES (Middleware: auth + role:sekretaris,bendahara)
 // ==========================================
 Route::middleware(['auth', 'role:sekretaris,bendahara'])->prefix('user')->name('user.')->group(function () {
-    
+
     // Dashboard
     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
-    
+
     // My Prokers
     Route::get('/myprokers', [UserDashboardController::class, 'myProkers'])->name('myprokers');
-    
+
     // Profile Management
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::post('/profile/change-password', [ProfileController::class, 'changePassword'])->name('profile.change-password');
-    
+
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
     Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread-count');

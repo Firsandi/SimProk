@@ -37,23 +37,27 @@ class Room extends Model
 
     public function getDocumentStats(): array
     {
+        $counts = $this->documents()
+            ->whereHas('latestStatus')
+            ->with('latestStatus')
+            ->get()
+            ->groupBy(fn($doc) => $doc->latestStatus->status ?? 'pending')
+            ->map->count();
+
         return [
-            'approved' => $this->documents()
-                ->whereHas('latestStatus', fn($q) => $q->where('status', 'approved'))
-                ->count(),
-            'pending'  => $this->documents()
-                ->whereHas('latestStatus', fn($q) => $q->where('status', 'pending'))
-                ->count(),
-            'rejected' => $this->documents()
-                ->whereHas('latestStatus', fn($q) => $q->whereIn('status', ['rejected', 'revision']))
-                ->count(),
+            'approved' => $counts['approved'] ?? 0,
+            'pending'  => $counts['pending'] ?? 0,
+            'rejected' => ($counts['rejected'] ?? 0) + ($counts['revision'] ?? 0),
         ];
     }
 
     public function getRecentNotificationCount(): int
     {
-        return $this->documents()
-            ->whereHas('latestStatus', fn($q) => $q->where('status', 'pending'))
-            ->count();
+        return $this->getDocumentStats()['pending'];
+    }
+
+    public function admin()
+    {
+        return $this->belongsTo(User::class, 'admin_id');
     }
 }

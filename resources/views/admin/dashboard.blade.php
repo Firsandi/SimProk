@@ -104,13 +104,13 @@
             </div>
         </a>
 
-        <a href="{{ route('admin.timeline') }}" class="flex items-center gap-4 p-5 transition bg-white shadow-sm rounded-xl hover:shadow-md group">
+        <a href="{{ route('admin.dokumen.index') }}" class="flex items-center gap-4 p-5 transition bg-white shadow-sm rounded-xl hover:shadow-md group">
             <div class="flex items-center justify-center transition bg-green-100 w-14 h-14 rounded-xl group-hover:bg-green-200">
                 <i class="text-2xl text-green-600 fas fa-clock"></i>
             </div>
             <div>
-                <p class="text-lg font-bold text-gray-900">Timeline</p>
-                <p class="text-sm text-gray-500">Lihat aktivitas terbaru</p>
+                <p class="text-lg font-bold text-gray-900">Dokumen</p>
+                <p class="text-sm text-gray-500">Lihat dokumen terbaru</p>
             </div>
         </a>
     </div>
@@ -131,14 +131,14 @@
         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             @foreach($rooms as $room)
                 @php
-                    $colors = ['blue', 'purple', 'pink', 'indigo', 'teal', 'green'];
-                    $color = $colors[$loop->index % count($colors)];
+                    $color = 'blue';
                 @endphp
+
                 <div class="overflow-hidden transition bg-white shadow-sm rounded-xl hover:shadow-lg group">
                     <!-- Header Card -->
                     <div class="p-6 bg-{{ $color }}-600 relative">
                         <span class="absolute top-4 right-4 text-xs px-3 py-1 rounded-full font-semibold
-                            {{ $room['status'] === 'active' ? 'bg-white text-' . $color . '-600' : 'bg-gray-700 text-white' }}">
+                            {{ $room['status'] === 'active' ? 'bg-white text-' . $color . '-600' : 'bg-gray-700 text-black' }}">
                             {{ ucfirst($room['status']) }}
                         </span>
                         <div class="flex items-center gap-3 mb-2">
