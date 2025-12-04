@@ -25,67 +25,73 @@ class DocumentController extends Controller
     }
 
     // Form upload dokumen
-    public function create(RoomProker $proker)
-    {
-        $room = $proker->room;
-
-        // Ambil role user di room
-        $role = RoomMember::where('room_id', $room->id)
-            ->where('user_id', auth()->id())
-            ->value('role');
-
-        if (!$role) {
-            abort(403, 'Anda bukan member di room ini');
-        }
-
-        // Tentukan dokumen yang boleh diunggah
-        $allowedDocs = [];
-        if ($role === 'bendahara') {
-            $allowedDocs[] = ['value' => 'layout_bpp', 'label' => 'Layout BPP', 'enabled' => true];
-            $allowedDocs[] = ['value' => 'spj', 'label' => 'SPJ', 'enabled' => $proker->status === 'completed'];
-        }
-        if ($role === 'sekretaris') {
-            $allowedDocs[] = ['value' => 'proposal', 'label' => 'Proposal', 'enabled' => true];
-            $allowedDocs[] = ['value' => 'lpj', 'label' => 'LPJ', 'enabled' => $proker->status === 'completed'];
-        }
-
-        return view('user.Document-create', compact('proker', 'room', 'allowedDocs'));
+   public function create(RoomProker $proker)
+{
+    // cek apakah user anggota proker
+    if (!$proker->members()->where('user_id', auth()->id())->exists()) {
+        abort(403, 'Anda bukan anggota proker ini');
     }
 
+    $room = $proker->room;
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'proker_id'     => 'required|exists:room_prokers,id',
-            'title'         => 'required|string|max:255',
-            'document_type' => ['required', Rule::in(['proposal', 'lpj', 'layout_bpp', 'spj'])],
-            'file'          => 'required|file|mimes:pdf,doc,docx|max:10240',
-            'notes'         => 'nullable|string',
-        ]);
+    // Tentukan dokumen yang boleh diunggah sesuai role di proker
+    $allowedDocs = [];
+    // misalnya role disimpan di pivot atau di RoomMember, sesuaikan
+    $role = RoomMember::where('room_id', $room->id)
+        ->where('user_id', auth()->id())
+        ->value('role');
 
-        $proker = RoomProker::findOrFail($request->proker_id);
-        $path = $request->file('file')->store("documents/room_{$proker->room_id}/proker_{$proker->id}", 'public');
-
-        $document = Document::create([
-            'room_id'       => $proker->room_id,
-            'proker_id'     => $request->proker_id,
-            'title'         => $request->title,
-            'document_type' => $request->document_type,
-            'file_path'     => $path,
-            'submitted_by'  => auth()->id(),
-            'notes'         => $request->notes,
-            'submitted_at'  => now(),
-        ]);
-
-        // ⬇️ Tambahkan status awal: pending
-        DocumentStatus::create([
-            'document_id' => $document->id,
-            'status'      => 'pending',
-        ]);
-
-        return redirect()->route('user.documents')
-                        ->with('success', '✅ Dokumen berhasil diunggah dan menunggu review.');
+    if ($role === 'bendahara') {
+        $allowedDocs[] = ['value' => 'layout_bpp', 'label' => 'Layout BPP', 'enabled' => true];
+        $allowedDocs[] = ['value' => 'spj', 'label' => 'SPJ', 'enabled' => $proker->status === 'completed'];
     }
+    if ($role === 'sekretaris') {
+        $allowedDocs[] = ['value' => 'proposal', 'label' => 'Proposal', 'enabled' => true];
+        $allowedDocs[] = ['value' => 'lpj', 'label' => 'LPJ', 'enabled' => $proker->status === 'completed'];
+    }
+
+    return view('user.Document-create', compact('proker', 'room', 'allowedDocs'));
+}
+
+
+public function store(Request $request)
+{
+    $request->validate([
+        'proker_id'     => 'required|exists:room_prokers,id',
+        'title'         => 'required|string|max:255',
+        'document_type' => ['required', Rule::in(['proposal', 'lpj', 'layout_bpp', 'spj'])],
+        'file'          => 'required|file|mimes:pdf,doc,docx|max:10240',
+        'notes'         => 'nullable|string',
+    ]);
+
+    $proker = RoomProker::findOrFail($request->proker_id);
+
+    // cek apakah user anggota proker
+    if (!$proker->members()->where('user_id', auth()->id())->exists()) {
+        abort(403, 'Anda bukan anggota proker ini');
+    }
+
+    $path = $request->file('file')->store("documents/room_{$proker->room_id}/proker_{$proker->id}", 'public');
+
+    $document = Document::create([
+        'room_id'       => $proker->room_id,
+        'proker_id'     => $request->proker_id,
+        'title'         => $request->title,
+        'document_type' => $request->document_type,
+        'file_path'     => $path,
+        'submitted_by'  => auth()->id(),
+        'notes'         => $request->notes,
+        'submitted_at'  => now(),
+    ]);
+
+    DocumentStatus::create([
+        'document_id' => $document->id,
+        'status'      => 'pending',
+    ]);
+
+    return redirect()->route('user.documents')
+        ->with('success', '✅ Dokumen berhasil diunggah dan menunggu review.');
+}
 
 
     // Lihat detail dokumen
