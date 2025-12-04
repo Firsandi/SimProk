@@ -6,22 +6,21 @@ use App\Http\Controllers\Controller;
 use App\Models\Document;
 use App\Models\DocumentStatus;
 use Illuminate\Http\Request;
+use App\Models\Room;   
 
 class DocumentAdminController extends Controller
 {
     public function index()
     {
-        $documents = Document::with(['room','proker','latestStatus','submitter'])
-            ->latest()
-            ->paginate(15);
-
+        $documents = Document::paginate(10);
         return view('admin.documents.index', compact('documents'));
     }
 
-    public function show(Document $document)
+    public function show(Document $document, Room $room)
     {
         $document->load(['room','proker','statuses','submitter']);
 
+        $documents = Document::where('room_id', $room->id)->get();
         return view('admin.documents.show', compact('document'));
     }
 

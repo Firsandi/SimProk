@@ -56,4 +56,15 @@ class RoomProker extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    public function members()
+    {
+        return $this->belongsToMany(User::class, 'proker_members', 'proker_id', 'user_id');
+    }
+
+    public function prokers()
+    {
+        return $this->belongsToMany(RoomProker::class, 'proker_members', 'user_id', 'proker_id');
+    }
+
 }

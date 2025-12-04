@@ -117,17 +117,6 @@
 
     <!-- Room Cards Section -->
     <div class="mb-6">
-        <div class="flex items-center justify-between mb-6">
-            <div>
-                <h3 class="text-2xl font-bold text-gray-800">🏢 Daftar UKM/Ormawa</h3>
-                <p class="text-sm text-gray-500">Kelola room dan program kerja</p>
-            </div>
-            <a href="{{ route('admin.room.create') }}" class="flex items-center gap-2 px-5 py-2 font-semibold text-white transition bg-blue-600 rounded-lg hover:bg-blue-700">
-                <i class="fas fa-plus"></i>
-                Tambah Room
-            </a>
-        </div>
-
         <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             @foreach($rooms as $room)
                 @php

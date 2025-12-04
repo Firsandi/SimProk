@@ -98,7 +98,13 @@ class ProkerController extends Controller
             'deskripsi'   => $validated['deskripsi'] ?? null,
         ]);
 
-        // TIDAK ada lagi pemanggilan $proker->members()
+        // overwrite anggota lama dengan anggota baru (hanya 1)
+        if (!empty($validated['member_id'])) {
+            $proker->members()->sync([$validated['member_id']]);
+        } else {
+        // kalau tidak pilih anggota, kosongkan pivot
+            $proker->members()->sync([]);
+    }
 
         return redirect()
             ->route('admin.room.proker.show', [$room->id, $proker->id])
@@ -111,8 +117,8 @@ class ProkerController extends Controller
     public function show($room_id, $proker_id)
     {
         // load room + anggota room
-        $room   = Room::with('members')->findOrFail($room_id);
-        $proker = RoomProker::findOrFail($proker_id);
+        $room   = Room::findOrFail($room_id);
+        $proker = RoomProker::with('members')->findOrFail($proker_id);
 
         // keamanan: pastikan proker milik room
         if ($proker->room_id !== $room->id) {
@@ -120,7 +126,7 @@ class ProkerController extends Controller
         }
 
         // Untuk sekarang, anggota proker = anggota room
-        $members = $room->members;
+        $members = $proker->members;
 
         return view('admin.room.proker.show', compact('room', 'proker', 'members'));
     }

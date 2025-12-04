@@ -1,62 +1,96 @@
 @extends('layouts.admin')
 
 @section('content')
-<!-- Kontainer utama -->
-<div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
-    <!-- Header tombol aksi -->
-    <div class="flex items-center justify-between mb-8">
-        <!-- Tombol balik ke dashboard -->
-        <a href="{{ route('admin.dashboard') }}"
-           class="px-5 py-2 text-white transition bg-gray-700 rounded-lg shadow hover:bg-gray-800">
-            ← Kembali ke Dashboard
-        </a>
+<div class="mx-auto max-w-screen-2xl px-4 sm:px-6 lg:px-8">
 
-        <!-- Tombol tambah UKM/Ormawa -->
-        <a href="{{ route('admin.room.create') }}"
-           class="px-5 py-2 text-white transition bg-green-500 rounded-lg shadow hover:bg-green-700">
-            + Tambah UKM / Ormawa
-        </a>
+    <!-- Header & actions -->
+    <div class="flex flex-col justify-between gap-3 mb-8 sm:flex-row sm:items-center">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900">UKM / Ormawa</h2>
+            <p class="text-sm text-gray-500">
+                Kelola room, periode kepengurusan, dan status aktif/nonaktif.
+            </p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+            <a href="{{ route('admin.dashboard') }}"
+               class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-gray-700 transition bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50">
+                <i class="fas fa-arrow-left"></i>
+                Kembali ke Dashboard
+            </a>
+            <a href="{{ route('admin.room.create') }}"
+               class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white transition bg-green-600 rounded-lg shadow-sm hover:bg-green-700">
+                <i class="fas fa-plus"></i>
+                Tambah UKM / Ormawa
+            </a>
+        </div>
     </div>
 
+    <!-- Grid daftar UKM/Ormawa -->
+    <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+        @forelse($rooms as $room)
+            @php
+                $isActive = $room['status'] === 'active';
+                $statusClasses = $isActive
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-gray-100 text-gray-700';
+            @endphp
 
-<!-- Grid daftar UKM/Ormawa -->
-<div class="grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
-    @foreach($rooms as $room)
-        @php
-            $color = 'white';
-        @endphp
-        <div class="overflow-hidden transition bg-white border border-gray-100 shadow rounded-2xl hover:shadow-xl">
-            <!-- Header -->
-            <div class="p-5 bg-{{ $color }}-700 text-black">
-                <div class="flex items-start justify-between">
-                    <div>
-                        <h3 class="text-lg font-bold leading-tight">{{ $room['name'] }}</h3>
-                        <span class="block mt-1 text-xs opacity-90">Periode: {{ $room['period'] }}</span>
+            <div class="overflow-hidden transition bg-white border border-gray-100 shadow-sm rounded-2xl hover:shadow-lg">
+                <!-- Header -->
+                <div class="px-5 py-4 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <h3 class="text-lg font-bold leading-tight line-clamp-2">
+                                {{ $room['name'] }}
+                            </h3>
+                            <p class="mt-1 text-xs text-slate-200/80">
+                                Periode: {{ $room['period'] }}
+                            </p>
+                        </div>
+                        <span class="px-3 py-1 text-[11px] font-semibold rounded-full uppercase tracking-wide {{ $statusClasses }} bg-opacity-90">
+                            {{ ucfirst($room['status']) }}
+                        </span>
                     </div>
-                    <span class="ml-2 text-xs px-3 py-1 rounded-full font-bold
-                        {{ $room['status'] === 'active' ? 'bg-green-500' : 'bg-gray-400' }} uppercase tracking-wide">
-                        {{ ucfirst($room['status']) }}
-                    </span>
+                </div>
+
+                <!-- Tombol aksi -->
+                <div class="flex items-center justify-between px-5 py-3 border-t border-gray-100 bg-gray-50/60">
+                    <div class="flex items-center gap-2">
+                        <a href="{{ route('admin.room.edit', $room['id']) }}"
+                           class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-blue-700 transition bg-blue-50 rounded-lg hover:bg-blue-100">
+                            <i class="fas fa-edit text-[11px]"></i>
+                            Update
+                        </a>
+                        <form
+                            action="{{ route('admin.room.destroy', $room['id']) }}"
+                            method="POST"
+                            onsubmit="return confirmAction(this, {
+                                text: 'Data yang dihapus tidak dapat dikembalikan.',
+                                confirmText: 'Ya, hapus',
+                                icon: 'error',
+                            });"
+                            class="inline"
+                        >
+                            @csrf
+                            @method('DELETE')
+                            <button
+                                type="submit"
+                                class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold text-red-700 transition bg-red-50 rounded-lg hover:bg-red-100"
+                            >
+                                <i class="fas fa-trash text-[11px]"></i>
+                                Hapus
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
-
-            <!-- Tombol aksi -->
-            <div class="flex items-center justify-end pt-4 space-x-3 border-t border-gray-200 p-5">
-                <a href="{{ route('admin.room.edit', $room['id']) }}"
-                   class="px-4 py-2 text-white transition bg-blue-700 rounded-lg hover:bg-indigo-700 focus:outline-none">
-                    Update
-                </a>
-                <form action="{{ route('admin.room.destroy', $room['id']) }}" method="POST"
-                      onsubmit="return confirm('Yakin mau hapus?')" class="inline">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit"
-                            class="px-4 py-2 text-white transition bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none">
-                        Hapus
-                    </button>
-                </form>
+        @empty
+            <div class="col-span-full">
+                <div class="px-5 py-6 text-sm text-center text-gray-500 bg-white border border-dashed border-gray-200 rounded-2xl">
+                    Belum ada UKM / Ormawa yang terdaftar.
+                </div>
             </div>
-        </div>
-    @endforeach
+        @endforelse
+    </div>
 </div>
 @endsection
