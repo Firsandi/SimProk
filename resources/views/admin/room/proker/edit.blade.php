@@ -1,13 +1,13 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="mx-auto max-w-screen-md px-4 sm:px-6 lg:px-8">
+<div class="max-w-screen-md px-4 mx-auto sm:px-6 lg:px-8">
 
-    <!-- Header -->
+    {{-- Header --}}
     <div class="flex flex-col justify-between gap-3 mb-6 sm:flex-row sm:items-center">
         <div>
             <h2 class="text-2xl font-bold text-gray-900">
-                ✏️ Edit Program Kerja
+                Edit Program Kerja
             </h2>
             <p class="text-sm text-gray-500">
                 Perbarui informasi program kerja untuk {{ $room->name }}.
@@ -22,7 +22,7 @@
         </a>
     </div>
 
-    <!-- Card Form -->
+    {{-- Card Form --}}
     <div class="overflow-hidden bg-white border border-gray-100 shadow-sm rounded-2xl">
         <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/60">
             <h3 class="text-lg font-semibold text-gray-900">Form Edit Program Kerja</h3>
@@ -95,25 +95,34 @@
                 @enderror
             </div>
 
-            {{-- Pilih Anggota Proker (opsional) --}}
+            {{-- Pilih Anggota Proker (tampilkan role) --}}
             <div>
                 <label class="block mb-1 text-sm font-semibold text-gray-800">
                     Pilih Anggota Proker
                 </label>
                 <select
                     name="member_id"
-                    class="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500"
+                    class="w-full px-4 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500"
                 >
                     <option value="">-- Pilih Anggota --</option>
                     @foreach ($room->members as $user)
+                        @php
+                            // Ambil role dari pivot room_members (default: Anggota)
+                            $roleLabel = ($user->pivot && $user->pivot->role) 
+                                ? ucfirst($user->pivot->role) 
+                                : 'Anggota';
+                        @endphp
                         <option
                             value="{{ $user->id }}"
                             {{ $proker->members->contains($user->id) ? 'selected' : '' }}
                         >
-                            {{ $user->name }}
+                            {{ $user->name }} ({{ $roleLabel }})
                         </option>
                     @endforeach
                 </select>
+                <p class="mt-1 text-xs text-gray-500">
+                    Pilih salah satu anggota dari organisasi ini untuk ditambahkan ke proker.
+                </p>
             </div>
 
             {{-- Tombol --}}

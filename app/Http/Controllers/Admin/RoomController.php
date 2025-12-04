@@ -10,7 +10,20 @@ class RoomController extends Controller
 {
     public function index()
     {
-        $rooms = Room::all();
+        $rooms = Room::with(['members', 'prokers'])
+            ->latest()
+            ->get()
+            ->map(function($room) {
+                return [
+                    'id'            => $room->id,
+                    'name'          => $room->name,
+                    'period'        => $room->period,
+                    'status'        => $room->status,
+                    'members_count' => $room->members->count(),  // Jumlah anggota dari room_members
+                    'prokers_count' => $room->prokers->count(),  // Jumlah proker dari room_prokers
+                ];
+            });
+
         return view('admin.room.index', compact('rooms'));
     }
 
@@ -32,7 +45,6 @@ class RoomController extends Controller
         Room::create([
             ...$validated,
             'admin_id' => auth()->id(),
-            // 'room_type' => $user->role,
         ]);
 
         return redirect()->route('admin.room.index')->with('success', 'UKM/Ormawa berhasil ditambahkan.');
@@ -65,4 +77,3 @@ class RoomController extends Controller
         return redirect()->route('admin.room.index')->with('success', 'UKM/Ormawa berhasil dihapus.');
     }
 }
-

@@ -19,7 +19,7 @@ class RoomProker extends Model
         'room_id',
     ];
 
-    // ✅ Accessor agar view tetap pakai $proker->name
+    // Accessor agar view tetap pakai $proker->name
     public function getNameAttribute()
     {
         return $this->nama_proker;
@@ -57,14 +57,17 @@ class RoomProker extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    // ✅ Relasi anggota proker via pivot proker_members
     public function members()
     {
-        return $this->belongsToMany(User::class, 'proker_members', 'proker_id', 'user_id');
+        return $this->belongsToMany(User::class, 'proker_members', 'proker_id', 'user_id')
+            ->withPivot('role')
+            ->withTimestamps();
     }
 
-    public function prokers()
-    {
-        return $this->belongsToMany(RoomProker::class, 'proker_members', 'user_id', 'proker_id');
-    }
-
+    // ❌ RELASI INI DIHAPUS
+    // public function prokers()
+    // {
+    //     return $this->belongsToMany(RoomProker::class, 'proker_members', 'user_id', 'proker_id');
+    // }
 }
