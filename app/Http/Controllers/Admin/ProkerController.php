@@ -131,6 +131,12 @@ class ProkerController extends Controller
         return view('admin.room.proker.show', compact('room', 'proker', 'members'));
     }
 
+    public function myProkers()
+    {
+        $prokers = Auth::user()->prokers()->with('room')->get();
+        return view('user.Proker-list', compact('prokers'));
+    }
+
     /**
      * Hapus proker.
      */
