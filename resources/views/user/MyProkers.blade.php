@@ -1,5 +1,9 @@
 @extends('layouts.user')
 
+@section('title', 'MyProkers')
+@section('page-title', 'MyProkers')
+@section('page-subtitle', 'Lihat Semua Proker Anda Disini')
+
 @section('content')
 <div class="px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">
 

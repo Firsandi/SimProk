@@ -4,7 +4,7 @@
 <div class="max-w-screen-md px-4 mx-auto sm:px-6 lg:px-8">
 
     <!-- Header dengan gradient biru -->
-    <div class="relative p-8 mb-8 overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-600 to-blue-800 rounded-2xl">
+    <div class="relative p-8 mb-8 overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-600 to-blue-800 rounded-3xl">
         <div class="absolute top-0 right-0 w-64 h-64 transform translate-x-32 -translate-y-32 bg-white rounded-full opacity-10"></div>
         <div class="absolute bottom-0 left-0 w-48 h-48 transform -translate-x-24 translate-y-24 bg-white rounded-full opacity-10"></div>
         
@@ -32,33 +32,6 @@
             </a>
         </div>
     </div>
-
-    <!-- Info Alert untuk Role yang sudah penuh -->
-    @if(isset($existingRoles['bendahara']) && $existingRoles['bendahara'] >= 1)
-    <div class="p-4 mb-6 border-l-4 border-yellow-400 rounded-lg shadow-sm bg-yellow-50">
-        <div class="flex items-center gap-3">
-            <svg class="flex-shrink-0 w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-            </svg>
-            <p class="text-sm font-semibold text-yellow-800">
-                Role <span class="font-bold">Bendahara</span> sudah terisi penuh (1/1). Anda tidak dapat menambahkan Bendahara lagi.
-            </p>
-        </div>
-    </div>
-    @endif
-
-    @if(isset($existingRoles['sekretaris']) && $existingRoles['sekretaris'] >= 1)
-    <div class="p-4 mb-6 border-l-4 border-yellow-400 rounded-lg shadow-sm bg-yellow-50">
-        <div class="flex items-center gap-3">
-            <svg class="flex-shrink-0 w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-            </svg>
-            <p class="text-sm font-semibold text-yellow-800">
-                Role <span class="font-bold">Sekretaris</span> sudah terisi penuh (1/1). Anda tidak dapat menambahkan Sekretaris lagi.
-            </p>
-        </div>
-    </div>
-    @endif
 
     <!-- Card Form -->
     <div class="overflow-hidden bg-white border-0 shadow-lg rounded-2xl">
@@ -147,7 +120,7 @@
                 @enderror
             </div>
 
-            <!-- Password -->
+            <!-- Password dengan Toggle Show/Hide -->
             <div>
                 <label class="flex items-center gap-2 mb-2 text-sm font-bold text-gray-800">
                     <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -155,9 +128,23 @@
                     </svg>
                     Password
                 </label>
-                <input type="password" name="password"
-                       class="w-full px-4 py-3 text-sm transition border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 hover:border-gray-300 @error('password') border-red-300 @enderror"
-                       placeholder="Minimal 6 karakter" required>
+                <div class="relative">
+                    <input type="password" 
+                           name="password" 
+                           id="password"
+                           class="w-full px-4 py-3 pr-12 text-sm transition border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 hover:border-gray-300 @error('password') border-red-300 @enderror"
+                           placeholder="Minimal 6 karakter" 
+                           required>
+                    
+                    <!-- Toggle Password Button -->
+                    <button type="button" 
+                            onclick="togglePassword('password', 'togglePasswordIcon')"
+                            class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 transition hover:text-gray-600">
+                        <svg id="togglePasswordIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                        </svg>
+                    </button>
+                </div>
                 @error('password')
                     <p class="flex items-center gap-1 mt-2 text-sm text-red-600">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -168,7 +155,7 @@
                 @enderror
             </div>
 
-            <!-- Password Confirmation -->
+            <!-- Password Confirmation dengan Toggle Show/Hide -->
             <div>
                 <label class="flex items-center gap-2 mb-2 text-sm font-bold text-gray-800">
                     <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -176,9 +163,23 @@
                     </svg>
                     Konfirmasi Password
                 </label>
-                <input type="password" name="password_confirmation"
-                       class="w-full px-4 py-3 text-sm transition border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 hover:border-gray-300"
-                       placeholder="Ketik ulang password" required>
+                <div class="relative">
+                    <input type="password" 
+                           name="password_confirmation"
+                           id="password_confirmation"
+                           class="w-full px-4 py-3 pr-12 text-sm transition border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 hover:border-gray-300"
+                           placeholder="Ketik ulang password" 
+                           required>
+                    
+                    <!-- Toggle Password Confirmation Button -->
+                    <button type="button" 
+                            onclick="togglePassword('password_confirmation', 'togglePasswordConfirmationIcon')"
+                            class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 transition hover:text-gray-600">
+                        <svg id="togglePasswordConfirmationIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
 
             <!-- Role Selection -->
@@ -196,60 +197,48 @@
                             'bendahara' => [
                                 'label' => 'Bendahara',
                                 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>',
-                                'limit' => 1
                             ],
                             'sekretaris' => [
                                 'label' => 'Sekretaris',
                                 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>',
-                                'limit' => 1
                             ],
                         ];
                     @endphp
 
                     @foreach($roleConfigs as $value => $config)
-                        @php
-                            $isFull = isset($existingRoles[$value]) && $existingRoles[$value] >= $config['limit'];
-                            $isOldSelected = old('role') === $value;
-                        @endphp
-
-                        <label class="relative flex items-start gap-3 p-4 transition border-2 rounded-xl cursor-pointer
-                            {{ $isFull ? 'bg-gray-50 border-gray-200 opacity-60 cursor-not-allowed' : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50/30 has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50' }}">
+                        <label class="relative flex items-start gap-3 p-4 transition border-2 rounded-xl cursor-pointer border-gray-200 hover:border-blue-300 hover:bg-blue-50/30 has-[:checked]:border-blue-500 has-[:checked]:bg-blue-50">
                             
                             <input type="radio" 
                                    name="role" 
                                    value="{{ $value }}" 
-                                   {{ $isFull ? 'disabled' : '' }}
-                                   {{ $isOldSelected ? 'checked' : '' }}
-                                   class="mt-0.5 w-5 h-5 text-blue-600 border-gray-300 focus:ring-2 focus:ring-blue-500 {{ $isFull ? 'cursor-not-allowed' : '' }}"
+                                   {{ old('role') === $value ? 'checked' : '' }}
+                                   class="mt-0.5 w-5 h-5 text-blue-600 border-gray-300 focus:ring-2 focus:ring-blue-500"
                                    required>
                             
                             <div class="flex-1">
                                 <div class="flex items-center gap-2 mb-1">
-                                    <svg class="w-5 h-5 {{ $isFull ? 'text-gray-400' : 'text-blue-600' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         {!! $config['icon'] !!}
                                     </svg>
-                                    <span class="text-sm font-bold {{ $isFull ? 'text-gray-500' : 'text-gray-900' }}">
+                                    <span class="text-sm font-bold text-gray-900">
                                         {{ $config['label'] }}
                                     </span>
                                 </div>
-                                
-                                @if($isFull)
-                                    <div class="flex items-center gap-1 mt-2">
-                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 text-xs font-bold text-red-700 bg-red-50 border border-red-200 rounded-md">
-                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                            </svg>
-                                            Sudah Terisi ({{ $existingRoles[$value] }}/{{ $config['limit'] }})
-                                        </span>
-                                    </div>
-                                @else
-                                    <p class="mt-1 text-xs text-gray-500">
-                                        Tersedia: {{ $config['limit'] - ($existingRoles[$value] ?? 0) }}/{{ $config['limit'] }} slot
-                                    </p>
-                                @endif
+                                <p class="text-xs text-gray-500">
+                                    Role di organisasi {{ $room->name }}
+                                </p>
                             </div>
                         </label>
                     @endforeach
+                </div>
+
+                <div class="flex items-start gap-2 p-3 mt-4 border-2 border-blue-100 rounded-xl bg-blue-50">
+                    <svg class="flex-shrink-0 w-4 h-4 mt-0.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <p class="text-xs leading-relaxed text-blue-700">
+                        <span class="font-bold">Organisasi boleh punya banyak Sekretaris & Bendahara.</span> Validasi role hanya berlaku saat assign ke Program Kerja (max 1 per role per proker).
+                    </p>
                 </div>
 
                 @error('role')
@@ -282,4 +271,29 @@
         </form>
     </div>
 </div>
+
+<!-- JavaScript untuk Toggle Password -->
+<script>
+function togglePassword(inputId, iconId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(iconId);
+    
+    if (input.type === 'password') {
+        // Show password
+        input.type = 'text';
+        // Change to Eye icon (visible)
+        icon.innerHTML = `
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+        `;
+    } else {
+        // Hide password
+        input.type = 'password';
+        // Change to Eye Slash icon (hidden)
+        icon.innerHTML = `
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+        `;
+    }
+}
+</script>
 @endsection

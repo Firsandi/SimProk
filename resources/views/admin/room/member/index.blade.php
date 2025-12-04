@@ -3,8 +3,39 @@
 @section('content')
 <div class="px-4 mx-auto max-w-screen-2xl sm:px-6 lg:px-8">
 
+    <!-- Flash Messages -->
+    @if(session('success'))
+        <div class="relative mb-6 overflow-hidden transition-all duration-300 border-l-4 shadow-lg border-emerald-500 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50 hover:shadow-xl">
+            <div class="flex items-start gap-4 p-5">
+                <div class="flex items-center justify-center flex-shrink-0 w-10 h-10 rounded-xl bg-emerald-100">
+                    <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <p class="font-bold text-emerald-900">{{ session('success') }}</p>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="relative mb-6 overflow-hidden transition-all duration-300 border-l-4 border-red-500 shadow-lg rounded-2xl bg-gradient-to-r from-red-50 to-rose-50 hover:shadow-xl">
+            <div class="flex items-start gap-4 p-5">
+                <div class="flex items-center justify-center flex-shrink-0 w-10 h-10 bg-red-100 rounded-xl">
+                    <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <p class="font-bold text-red-900">{{ session('error') }}</p>
+                </div>
+            </div>
+        </div>
+    @endif
+
     <!-- Header dengan gradient biru -->
-    <div class="relative p-8 mb-8 overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-600 to-blue-800 rounded-2xl">
+    <div class="relative p-8 mb-8 overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-600 to-blue-800 rounded-3xl">
         <div class="absolute top-0 right-0 w-64 h-64 transform translate-x-32 -translate-y-32 bg-white rounded-full opacity-10"></div>
         <div class="absolute bottom-0 left-0 w-48 h-48 transform -translate-x-24 translate-y-24 bg-white rounded-full opacity-10"></div>
         
@@ -61,19 +92,6 @@
                     </p>
                 </div>
             </div>
-            
-            {{-- Search --}}
-            <div class="relative">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                    </svg>
-                </span>
-                <input
-                    type="text"
-                    class="w-40 py-2 pl-10 pr-3 text-sm border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 sm:w-56"
-                    placeholder="Cari nama / username">
-            </div>
         </div>
 
         <div class="overflow-x-auto">
@@ -110,6 +128,14 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
                                 </svg>
                                 Role
+                            </div>
+                        </th>
+                        <th class="px-6 py-4 text-center">
+                            <div class="flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/>
+                                </svg>
+                                Aksi
                             </div>
                         </th>
                     </tr>
@@ -160,10 +186,42 @@
                                     {{ ucfirst($member->pivot->role) }}
                                 </span>
                             </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center justify-center gap-2">
+                                    <!-- Tombol Edit -->
+                                    <a href="{{ route('admin.room.member.edit', [$room->id, $member->id]) }}"
+                                       class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-blue-600 transition border-2 border-blue-200 bg-blue-50 rounded-lg hover:bg-blue-100 hover:border-blue-300 hover:scale-105">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                        </svg>
+                                        Edit
+                                    </a>
+                                    
+                                    <!-- Tombol Hapus dengan SweetAlert -->
+                                    <form action="{{ route('admin.room.member.destroy', [$room->id, $member->id]) }}"
+                                          method="POST"
+                                          onsubmit="return confirmAction(this, {
+                                              text: 'Anggota {{ $member->name }} akan dihapus dari organisasi {{ $room->name }}. Tindakan ini tidak dapat dibatalkan.',
+                                              confirmText: 'Ya, hapus anggota',
+                                              icon: 'warning'
+                                          });"
+                                          class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit"
+                                                class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-red-600 transition border-2 border-red-200 bg-red-50 rounded-lg hover:bg-red-100 hover:border-red-300 hover:scale-105">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                            </svg>
+                                            Hapus
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-6 py-12">
+                            <td colspan="5" class="px-6 py-12">
                                 <div class="flex flex-col items-center justify-center">
                                     <div class="flex items-center justify-center w-16 h-16 mb-4 rounded-full bg-gray-50">
                                         <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">

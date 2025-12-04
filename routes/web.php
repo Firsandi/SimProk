@@ -53,11 +53,18 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::put('/room/{room}/proker/{proker}', [ProkerController::class, 'update'])->name('room.proker.update');
     Route::delete('/room/{room}/proker/{proker}', [ProkerController::class, 'destroy'])->name('room.proker.destroy');
     Route::get('/room/{room}/proker/{proker}', [ProkerController::class, 'show'])->name('room.proker.show');
+    
+    // ✅ TAMBAH 2 BARIS INI - Proker Member Management
+    Route::post('/room/{room}/proker/{proker}/add-member', [ProkerController::class, 'addMember'])->name('room.proker.addMember');
+    Route::post('/room/{room}/proker/{proker}/remove-member', [ProkerController::class, 'removeMember'])->name('room.proker.removeMember');
 
     // Room Member Management
     Route::get('/room/{room}/member/create', [RoomMemberController::class, 'create'])->name('room.member.create');
     Route::post('/room/{room}/member', [RoomMemberController::class, 'store'])->name('room.member.store');
     Route::get('/room/{room}/member', [RoomMemberController::class, 'index'])->name('room.member.index');
+    Route::get('/room/{room}/member/{member}/edit', [RoomMemberController::class, 'edit'])->name('room.member.edit');
+    Route::put('/room/{room}/member/{member}', [RoomMemberController::class, 'update'])->name('room.member.update');
+    Route::delete('/room/{room}/member/{member}', [RoomMemberController::class, 'destroy'])->name('room.member.destroy');
 
     // Document Review
     Route::get('/documents', [DocumentReviewController::class, 'index'])->name('documents.index');
@@ -69,7 +76,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 // ==========================================
 // USER ROUTES (Middleware: auth + role:sekretaris,bendahara)
 // ==========================================
-Route::middleware(['auth', 'role:sekretaris,bendahara'])->prefix('user')->name('user.')->group(function () {
+Route::middleware(['auth', 'role:user,sekretaris,bendahara'])->prefix('user')->name('user.')->group(function () {
 
     // Dashboard
     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
@@ -82,9 +89,13 @@ Route::middleware(['auth', 'role:sekretaris,bendahara'])->prefix('user')->name('
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::post('/profile/change-password', [ProfileController::class, 'changePassword'])->name('profile.change-password');
 
-    // Notifications
+   // ✅ NOTIFICATIONS - TAMBAH ROUTES INI
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
+    Route::post('/notifications/{notification}/read', [NotificationController::class, 'read'])->name('notifications.read');
+    Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.readAll');
+    Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
     Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread-count');
+    
 
     // Documents
     Route::get('/documents', [DocumentController::class, 'index'])->name('documents');

@@ -6,40 +6,36 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Room;
 use App\Models\User;
-use App\Models\RoomMember;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use App\Notifications\WelcomeNewMemberNotification;
 
 class RoomMemberController extends Controller
 {
+    /**
+     * Display a listing of room members.
+     */
     public function index(Request $request, Room $room)
     {
-        $members = $room->members()->orderBy('name')->get();
+        $members = $room->members()
+            ->withPivot('role')
+            ->orderBy('name')
+            ->get();
         
-        // Hitung jumlah role yang sudah ada
-        $roleCount = $room->members()
-            ->select('room_members.role', DB::raw('count(*) as total'))
-            ->groupBy('room_members.role')
-            ->pluck('total', 'room_members.role')
-            ->toArray();
-        
-        return view('admin.room.member.index', compact('room', 'members', 'roleCount'));
+        return view('admin.room.member.index', compact('room', 'members'));
     }
 
+    /**
+     * Show the form for creating a new member.
+     */
     public function create(Room $room)
     {
-        // Hitung jumlah role yang sudah ada untuk validasi di form
-        $existingRoles = $room->members()
-            ->select('room_members.role', DB::raw('count(*) as total'))
-            ->groupBy('room_members.role')
-            ->pluck('total', 'room_members.role')
-            ->toArray();
-        
-        $roles = ['bendahara', 'sekretaris'];
-        
-        return view('admin.room.member.create', compact('room', 'roles', 'existingRoles'));
+        return view('admin.room.member.create', compact('room'));
     }
 
+    /**
+     * Store a newly created member in storage.
+     */
     public function store(Request $request, Room $room)
     {
         $validated = $request->validate([
@@ -50,38 +46,34 @@ class RoomMemberController extends Controller
             'role'     => 'required|in:bendahara,sekretaris',
         ]);
 
-        // Validasi: Cek apakah role Bendahara atau Sekretaris sudah ada di room ini
-        $existingRole = $room->members()
-            ->wherePivot('role', $validated['role'])
-            ->exists();
-
-        if ($existingRole) {
-            return back()->withErrors([
-                'role' => 'Role ' . ucfirst($validated['role']) . ' sudah ada di organisasi ini. Setiap organisasi hanya boleh memiliki 1 orang dengan role ' . ucfirst($validated['role']) . '.'
-            ])->withInput();
-        }
-
         // Buat user baru
         $user = User::create([
             'name'      => $validated['name'],
             'username'  => (string) $validated['username'],
             'email'     => $validated['email'],
             'password'  => Hash::make($validated['password']),
-            'role'      => 'user', // Role di tabel users selalu 'user'
+            'role'      => $validated['role'],
             'is_active' => true,  
         ]);
 
-        // Tambahkan ke room dengan role di pivot table
-        $room->members()->attach($user->id, ['role' => $validated['role']]);
+        // Attach ke room
+        $room->members()->attach($user->id, [
+            'role' => $validated['role'],
+        ]);
 
+        // Kirim notifikasi welcome
+        $user->notify(new WelcomeNewMemberNotification($room));
+        
         return redirect()
             ->route('admin.room.member.index', $room->id)
-            ->with('success', 'Anggota berhasil ditambahkan sebagai ' . ucfirst($validated['role']) . ' di ' . $room->name . '.');
+            ->with('success', 'Anggota "' . $user->name . '" berhasil ditambahkan sebagai ' . ucfirst($validated['role']) . ' di ' . $room->name . ' dan notifikasi welcome telah dikirim!');
     }
 
+    /**
+     * Show the form for editing the specified member.
+     */
     public function edit(Room $room, User $member)
     {
-        // Ambil data pivot untuk member ini di room ini
         $memberPivot = $room->members()->where('users.id', $member->id)->first();
         
         if (!$memberPivot) {
@@ -90,26 +82,18 @@ class RoomMemberController extends Controller
                 ->with('error', 'Anggota tidak ditemukan di organisasi ini.');
         }
 
-        // Hitung role yang sudah ada (exclude member yang sedang diedit)
-        $existingRoles = $room->members()
-            ->where('users.id', '!=', $member->id)
-            ->select('room_members.role', DB::raw('count(*) as total'))
-            ->groupBy('room_members.role')
-            ->pluck('total', 'room_members.role')
-            ->toArray();
-
-        $roles = ['bendahara', 'sekretaris'];
-        
-        return view('admin.room.member.edit', compact('room', 'member', 'memberPivot', 'roles', 'existingRoles'));
+        return view('admin.room.member.edit', compact('room', 'member', 'memberPivot'));
     }
 
+    /**
+     * Update the specified member in storage.
+     */
     public function update(Request $request, Room $room, User $member)
     {
         $validated = $request->validate([
             'role' => 'required|in:bendahara,sekretaris',
         ]);
 
-        // Cek apakah member ada di room ini
         $memberExists = $room->members()->where('users.id', $member->id)->exists();
         
         if (!$memberExists) {
@@ -118,27 +102,16 @@ class RoomMemberController extends Controller
                 ->with('error', 'Anggota tidak ditemukan di organisasi ini.');
         }
 
-        // Ambil role lama
         $oldRole = $room->members()->where('users.id', $member->id)->first()->pivot->role;
 
-        // Jika role tidak berubah, langsung redirect
         if ($oldRole === $validated['role']) {
             return redirect()
                 ->route('admin.room.member.index', $room->id)
                 ->with('info', 'Tidak ada perubahan role.');
         }
 
-        // Validasi: Cek apakah role baru sudah ada di room ini (exclude member ini)
-        $existingRole = $room->members()
-            ->where('users.id', '!=', $member->id)
-            ->wherePivot('role', $validated['role'])
-            ->exists();
-
-        if ($existingRole) {
-            return back()->withErrors([
-                'role' => 'Role ' . ucfirst($validated['role']) . ' sudah ada di organisasi ini. Setiap organisasi hanya boleh memiliki 1 orang dengan role ' . ucfirst($validated['role']) . '.'
-            ])->withInput();
-        }
+        // Update role di users table
+        $member->update(['role' => $validated['role']]);
 
         // Update role di pivot table
         $room->members()->updateExistingPivot($member->id, [
@@ -150,9 +123,11 @@ class RoomMemberController extends Controller
             ->with('success', 'Role ' . $member->name . ' berhasil diubah dari ' . ucfirst($oldRole) . ' menjadi ' . ucfirst($validated['role']) . '.');
     }
 
+    /**
+     * Remove the specified member from storage.
+     */
     public function destroy(Room $room, User $member)
     {
-        // Cek apakah member ada di room ini
         $memberExists = $room->members()->where('users.id', $member->id)->exists();
         
         if (!$memberExists) {
@@ -161,16 +136,17 @@ class RoomMemberController extends Controller
                 ->with('error', 'Anggota tidak ditemukan di organisasi ini.');
         }
 
-        // Ambil nama dan role sebelum dihapus untuk pesan
         $memberData = $room->members()->where('users.id', $member->id)->first();
         $memberName = $memberData->name;
         $memberRole = $memberData->pivot->role;
 
-        // Hapus dari pivot table room_members
-        $room->members()->detach($member->id);
+        // ✅ HAPUS USER DARI DATABASE (Hard Delete)
+        // Ini otomatis akan hapus relasi di room_members juga (jika ada onDelete cascade)
+        $member->delete();
 
         return redirect()
             ->route('admin.room.member.index', $room->id)
-            ->with('success', $memberName . ' (' . ucfirst($memberRole) . ') berhasil dihapus dari ' . $room->name . '.');
+            ->with('success', $memberName . ' (' . ucfirst($memberRole) . ') berhasil dihapus dari sistem.');
     }
+
 }
