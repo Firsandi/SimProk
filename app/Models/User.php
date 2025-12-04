@@ -72,11 +72,6 @@ class User extends Authenticatable
     }
 
 
-    // Notifikasi milik user
-    public function notifications(): HasMany
-    {
-        return $this->hasMany(Notification::class, 'user_id');
-    }
 
     // Timeline aktivitas user
     public function timelines(): HasMany

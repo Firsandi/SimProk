@@ -18,26 +18,26 @@ class UserDashboardController extends Controller
         $totalRooms   = $user->joinedRooms()->count();
         $totalDocs    = Document::where('submitted_by', $user->id)->count();
         $pendingDocs  = Document::where('submitted_by', $user->id)
-                                ->whereDoesntHave('statuses', function ($q) {
-                                    $q->whereIn('status', ['approved', 'rejected']);
-                                })
-                                ->count();
+            ->whereDoesntHave('statuses', function ($q) {
+                $q->whereIn('status', ['approved', 'rejected']);
+            })
+            ->count();
 
-        // Preview proker terbaru (3 proker)
-        $myProkers = RoomProker::whereHas('room.members', function ($q) use ($user) {
-                                $q->where('users.id', $user->id);
-                            })
-                            ->with(['room', 'documents'])
-                            ->latest()
-                            ->take(3)
-                            ->get();
+        // ✅ Preview proker terbaru (3 proker) berdasarkan pivot proker_members
+        $myProkers = RoomProker::whereHas('members', function ($q) use ($user) {
+                $q->where('users.id', $user->id);
+            })
+            ->with(['room', 'documents'])
+            ->latest()
+            ->take(3)
+            ->get();
 
         // Dokumen terbaru (5 dokumen)
         $recentDocs = Document::where('submitted_by', $user->id)
-                             ->with(['latestStatus', 'room'])
-                             ->latest()
-                             ->take(5)
-                             ->get();
+            ->with(['latestStatus', 'room'])
+            ->latest()
+            ->take(5)
+            ->get();
 
         return view('user.Dashboard', compact(
             'totalRooms',
@@ -52,27 +52,29 @@ class UserDashboardController extends Controller
     {
         $user = Auth::user();
 
-        $myProkers = RoomProker::whereHas('room.members', function ($query) use ($user) {
-                                $query->where('users.id', $user->id);
-                            })
-                            ->with(['room', 'documents'])
-                            ->latest()
-                            ->get()
-                            ->map(function ($proker) use ($user) {
-                                // Ambil role user dari room_members
-                                $member = RoomMember::where('room_id', $proker->room_id)
-                                                     ->where('user_id', $user->id)
-                                                     ->first();
-                                
-                                $proker->user_role = $member ? $member->role : 'Anggota';
+        // ✅ Hanya proker yang user-nya terdaftar di pivot proker_members
+        $myProkers = RoomProker::whereHas('members', function ($query) use ($user) {
+                $query->where('users.id', $user->id);
+            })
+            ->with(['room', 'documents'])
+            ->latest()
+            ->get()
+            ->map(function ($proker) use ($user) {
 
-                                // Hitung progress berdasarkan jumlah dokumen
-                                $proker->progress = $proker->documents->count() > 0 
-                                    ? min(($proker->documents->count() * 25), 100) 
-                                    : 0;
+                // Ambil role user dari room_members (role di level room)
+                $member = RoomMember::where('room_id', $proker->room_id)
+                    ->where('user_id', $user->id)
+                    ->first();
 
-                                return $proker;
-                            });
+                $proker->user_role = $member ? $member->role : 'Anggota';
+
+                // Hitung progress berdasarkan jumlah dokumen
+                $proker->progress = $proker->documents->count() > 0
+                    ? min(($proker->documents->count() * 25), 100)
+                    : 0;
+
+                return $proker;
+            });
 
         return view('user.MyProkers', compact('myProkers'));
     }
