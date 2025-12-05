@@ -23,7 +23,6 @@ class UserDashboardController extends Controller
             })
             ->count();
 
-        // ✅ Preview proker terbaru (3 proker) berdasarkan pivot proker_members
         $myProkers = RoomProker::whereHas('members', function ($q) use ($user) {
                 $q->where('users.id', $user->id);
             })
@@ -52,7 +51,6 @@ class UserDashboardController extends Controller
     {
         $user = Auth::user();
 
-        // ✅ Hanya proker yang user-nya terdaftar di pivot proker_members
         $myProkers = RoomProker::whereHas('members', function ($query) use ($user) {
                 $query->where('users.id', $user->id);
             })
