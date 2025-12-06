@@ -184,14 +184,22 @@
 
                                         <!-- Delete Button (only if pending) -->
                                         @if ($doc->isPending())
-                                            <form action="{{ route('user.documents.destroy', $doc->id) }}" method="POST" class="inline" onsubmit="return confirm('Hapus dokumen ini?')">
+                                            <form action="{{ route('user.documents.destroy', $doc->id) }}" method="POST" class="inline">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" 
-                                                        class="inline-flex items-center justify-center text-red-600 transition border-2 border-red-200 rounded-lg w-9 h-9 bg-red-50 hover:bg-red-100 hover:scale-110"
-                                                        title="Hapus">
+                                                <button type="submit"
+                                                    onclick="event.preventDefault(); confirmAction(this.closest('form'), {
+                                                        title: 'Konfirmasi Hapus',
+                                                        text: 'Yakin ingin menghapus dokumen ini?',
+                                                        confirmText: 'Ya, hapus',
+                                                        cancelText: 'Batal',
+                                                        icon: 'warning'
+                                                    });"
+                                                    class="inline-flex items-center justify-center text-red-600 transition border-2 border-red-200 rounded-lg w-9 h-9 bg-red-50 hover:bg-red-100 hover:scale-110"
+                                                    title="Hapus">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                                     </svg>
                                                 </button>
                                             </form>
