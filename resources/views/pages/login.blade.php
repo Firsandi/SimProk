@@ -52,7 +52,7 @@
                 
                 <!-- Tagline -->
                 <p class="max-w-sm mb-6 text-base font-semibold leading-relaxed sm:text-lg text-white/90 drop-shadow">
-                    Sistem Manajemen Program Kerja Organisasi
+                    Sistem Informasi Program Kerja
                 </p>
 
                 <!-- Features badges -->

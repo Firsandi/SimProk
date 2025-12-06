@@ -25,7 +25,7 @@ class ProfileController extends Controller
 
         auth()->user()->update($validated);
 
-        return redirect()->route('user.profile')->with('success', '✅ Profil berhasil diperbarui!');
+        return redirect()->route('user.profile')->with('success', ' Profil berhasil diperbarui!');
     }
 
     // Change password
@@ -46,6 +46,6 @@ class ProfileController extends Controller
             'password' => Hash::make($validated['new_password'])
         ]);
 
-        return redirect()->route('user.profile')->with('success', '✅ Password berhasil diubah!');
+        return redirect()->route('user.profile')->with('success', ' Password berhasil diubah!');
     }
 }

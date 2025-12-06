@@ -140,7 +140,7 @@ class RoomMemberController extends Controller
         $memberName = $memberData->name;
         $memberRole = $memberData->pivot->role;
 
-        // ✅ HAPUS USER DARI DATABASE (Hard Delete)
+        //  HAPUS USER DARI DATABASE (Hard Delete)
         // Ini otomatis akan hapus relasi di room_members juga (jika ada onDelete cascade)
         $member->delete();
 

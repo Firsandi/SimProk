@@ -1,11 +1,14 @@
 @extends('layouts.user')
 
+
 @section('title', 'MyProkers')
 @section('page-title', 'MyProkers')
 @section('page-subtitle', 'Lihat Semua Proker Anda Disini')
 
+
 @section('content')
 <div class="px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">
+
 
     <!-- Header with Icon -->
     <div class="relative p-8 mb-8 overflow-hidden text-white shadow-xl bg-gradient-to-br from-teal-500 via-teal-600 to-emerald-600 rounded-2xl">
@@ -27,6 +30,7 @@
         </div>
     </div>
 
+
     <!-- Flash Message -->
     @if(session('success'))
         <div class="flex items-start gap-3 p-4 mb-6 text-green-800 border-l-4 border-green-500 shadow-sm rounded-xl bg-green-50">
@@ -36,6 +40,16 @@
             <span class="font-medium">{{ session('success') }}</span>
         </div>
     @endif
+
+    @if(session('error'))
+        <div class="flex items-start gap-3 p-4 mb-6 text-red-800 border-l-4 border-red-500 shadow-sm rounded-xl bg-red-50">
+            <svg class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span class="font-medium">{{ session('error') }}</span>
+        </div>
+    @endif
+
 
     <!-- Proker Cards Grid -->
     @if($myProkers->count() > 0)
@@ -49,6 +63,29 @@
                         ['border' => 'border-pink-500', 'bg' => 'bg-pink-50', 'text' => 'text-pink-600', 'gradient' => 'from-pink-500 to-rose-600', 'icon' => 'text-pink-500']
                     ];
                     $color = $colors[$loop->index % 4];
+
+                    // ✅ Ambil role user di proker ini
+                    $userRole = $proker->members()
+                        ->where('user_id', auth()->id())
+                        ->first()
+                        ->pivot
+                        ->role ?? null;
+                    
+                    // ✅ Tentukan progress berdasarkan role
+                    if ($userRole === 'sekretaris') {
+                        $progressValue = $proker->progress ?? 0;
+                    } elseif ($userRole === 'bendahara') {
+                        $progressValue = $proker->bendahara_progress ?? 0;
+                    } else {
+                        // Jika bukan sekretaris/bendahara, tampilkan rata-rata
+                        $progressValue = round((($proker->progress ?? 0) + ($proker->bendahara_progress ?? 0)) / 2);
+                    }
+
+                    // ✅ Proker completed jika KEDUA role sudah 100%
+                    $isProkerCompleted = ($proker->progress == 100) && ($proker->bendahara_progress == 100);
+                    
+                    // ✅ Role user completed jika progress mereka 100%
+                    $isUserRoleCompleted = $progressValue == 100;
                 @endphp
                 
                 <div class="p-6 transition bg-white border-l-4 shadow-sm {{ $color['border'] }} rounded-2xl hover:shadow-xl group">
@@ -68,14 +105,16 @@
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                             </svg>
-                            {{ ucfirst($proker->user_role ?? 'Anggota') }}
+                            {{ ucfirst($userRole ?? 'Anggota') }}
                         </span>
                     </div>
+
 
                     <!-- Description -->
                     <p class="mb-4 text-sm leading-relaxed text-gray-600 line-clamp-2">
                         {{ $proker->description ?? 'Tidak ada deskripsi' }}
                     </p>
+
 
                     <!-- Meta Info -->
                     <div class="pb-4 mb-4 space-y-2.5 text-sm border-b border-gray-100">
@@ -93,28 +132,40 @@
                         </div>
                     </div>
 
+
                     <!-- Progress Bar -->
                     <div class="mb-4">
                         <div class="flex justify-between mb-2 text-xs font-bold">
-                            <span class="text-gray-600">Progress</span>
-                            <span class="{{ $color['text'] }}">{{ $proker->progress ?? 0 }}%</span>
+                            <span class="text-gray-600">Progress ({{ ucfirst($userRole ?? 'Total') }})</span>
+                            <span class="{{ $color['text'] }}">{{ $progressValue }}%</span>
                         </div>
                         <div class="w-full h-3 overflow-hidden bg-gray-200 rounded-full">
                             <div class="h-full bg-gradient-to-r {{ $color['gradient'] }} transition-all duration-500 rounded-full shadow-inner" 
-                                 style="width: {{ $proker->progress ?? 0 }}%"></div>
+                                 style="width: {{ $progressValue }}%"></div>
                         </div>
                     </div>
 
+
                     <!-- Status Badge -->
                     <div class="mb-4">
-                        @if($proker->status === 'completed')
+                        @if($isProkerCompleted)
+                            {{-- ✅ Kedua role sudah 100% = Proker Completed --}}
                             <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-green-700 border-2 border-green-200 rounded-lg bg-green-50">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                 </svg>
                                 Completed
                             </span>
+                        @elseif($isUserRoleCompleted)
+                            {{-- ✅ Role user sudah 100% tapi role lain belum --}}
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-blue-700 border-2 border-blue-200 rounded-lg bg-blue-50">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                {{ ucfirst($userRole) }} Selesai
+                            </span>
                         @else
+                            {{-- ❌ Masih ongoing --}}
                             <span class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-yellow-700 border-2 border-yellow-200 rounded-lg bg-yellow-50">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -124,15 +175,29 @@
                         @endif
                     </div>
 
+
                     <!-- Action Buttons -->
                     <div class="flex gap-2">
-                        <a href="{{ route('user.documents.create', $proker->id) }}" 
-                           class="flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold text-white transition shadow-lg bg-gradient-to-r {{ $color['gradient'] }} rounded-xl hover:shadow-xl hover:scale-105">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                            </svg>
-                            Upload
-                        </a>
+                        @if($isUserRoleCompleted)
+                            {{-- ✅ Jika role user sudah 100%, button disabled --}}
+                            <button disabled
+                                    class="flex items-center justify-center flex-1 gap-2 px-4 py-3 text-sm font-bold text-gray-400 transition bg-gray-100 cursor-not-allowed rounded-xl">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                {{ ucfirst($userRole) }} Selesai
+                            </button>
+                        @else
+                            {{-- ✅ Jika role user belum 100%, button upload aktif --}}
+                            <a href="{{ route('user.documents.create', $proker->id) }}" 
+                               class="flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold text-white transition shadow-lg bg-gradient-to-r {{ $color['gradient'] }} rounded-xl hover:shadow-xl hover:scale-105">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                                </svg>
+                                Upload
+                            </a>
+                        @endif
+                        
                         <a href="{{ route('user.documents') }}" 
                            class="flex items-center justify-center px-4 py-3 text-sm font-bold text-gray-700 transition border-2 border-gray-200 rounded-xl bg-gray-50 hover:bg-gray-100">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -156,6 +221,7 @@
             <p class="mt-1 text-sm text-gray-400">Hubungi admin untuk ditambahkan ke room</p>
         </div>
     @endif
+
 
 </div>
 @endsection

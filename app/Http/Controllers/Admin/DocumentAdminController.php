@@ -38,6 +38,11 @@ class DocumentAdminController extends Controller
             'reviewed_at' => now(),
         ]);
 
-        return redirect()->route('admin.dokumen.index')->with('success', '✅ Status dokumen berhasil diperbarui.');
+        //  Progress otomatis update karena pakai accessor di Model
+        // Tidak perlu panggil updateProgress() lagi
+
+        return redirect()->route('admin.dokumen.index')
+            ->with('success', 'Status dokumen berhasil diperbarui.');
     }
+
 }

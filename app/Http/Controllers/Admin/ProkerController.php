@@ -65,7 +65,7 @@ class ProkerController extends Controller
             ->orderBy('name')
             ->get();
 
-        // ✅ AMBIL USER YANG BELUM ADA DI PROKER INI
+        //  AMBIL USER YANG BELUM ADA DI PROKER INI
         // Filter: user harus anggota room DAN belum di proker ini
         $availableMembers = $room->members()
             ->whereNotIn('users.id', $members->pluck('id'))
@@ -119,29 +119,29 @@ class ProkerController extends Controller
      */
     public function addMember(Request $request, Room $room, RoomProker $proker)
     {
-        // ✅ VALIDASI: Hanya butuh user_id, role ambil dari tabel users
+        //  VALIDASI: Hanya butuh user_id, role ambil dari tabel users
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
         ]);
 
-        // ✅ AMBIL USER
+        //  AMBIL USER
         $user = User::findOrFail($validated['user_id']);
 
-        // ✅ CEK: Apakah user adalah anggota room ini?
+        //  CEK: Apakah user adalah anggota room ini?
         if (!$room->members()->where('users.id', $user->id)->exists()) {
             return redirect()
                 ->back()
                 ->with('error', 'User "' . $user->name . '" bukan anggota dari organisasi ' . $room->name . '.');
         }
 
-        // ✅ CEK: Apakah user sudah ada di proker ini?
+        //  CEK: Apakah user sudah ada di proker ini?
         if ($proker->members()->where('users.id', $user->id)->exists()) {
             return redirect()
                 ->back()
                 ->with('error', $user->name . ' sudah menjadi anggota proker ini.');
         }
 
-        // ✅ CEK: Apakah role ini sudah ada di proker? (1 sekretaris, 1 bendahara per proker)
+        //  CEK: Apakah role ini sudah ada di proker? (1 sekretaris, 1 bendahara per proker)
         $existingRoleInProker = $proker->members()
             ->wherePivot('role', $user->role)
             ->exists();
@@ -152,12 +152,12 @@ class ProkerController extends Controller
                 ->with('error', 'Role ' . ucfirst($user->role) . ' sudah terisi di proker ini. Setiap proker hanya boleh memiliki 1 Sekretaris dan 1 Bendahara.');
         }
 
-        // ✅ ATTACH USER KE PROKER (role ambil dari users.role)
+        //  ATTACH USER KE PROKER (role ambil dari users.role)
         $proker->members()->attach($user->id, [
             'role' => $user->role, // Ambil dari tabel users
         ]);
 
-        // ✅ KIRIM NOTIFIKASI
+        //  KIRIM NOTIFIKASI
         $user->notify(new UserAddedToProkerNotification($proker, $room));
 
         return redirect()

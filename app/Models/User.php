@@ -54,7 +54,6 @@ class User extends Authenticatable
     }
 
 
-    // ========== TAMBAHAN BARU DI BAWAH INI ==========
 
     /**
      * Relasi ke RoomMember (user sebagai member di room)

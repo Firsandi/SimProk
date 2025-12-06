@@ -24,7 +24,7 @@ class ForgotPasswordController extends Controller
         );
 
         return $status === Password::RESET_LINK_SENT
-            ? back()->with('success', '✅ Link reset password telah dikirim ke email Anda!')
+            ? back()->with('success', ' Link reset password telah dikirim ke email Anda!')
             : back()->withErrors(['email' => __($status)]);
     }
 
@@ -53,7 +53,7 @@ class ForgotPasswordController extends Controller
         );
 
         return $status === Password::PASSWORD_RESET
-            ? redirect()->route('login')->with('success', '✅ Password berhasil direset! Silakan login.')
+            ? redirect()->route('login')->with('success', ' Password berhasil direset! Silakan login.')
             : back()->withErrors(['email' => [__($status)]]);
     }
 }

@@ -1,7 +1,9 @@
 @extends('layouts.admin')
 
+
 @section('content')
 <div class="px-4 mx-auto max-w-screen-2xl sm:px-6 lg:px-8">
+
 
     <!-- Header dengan gradient biru -->
     <div class="relative p-8 mb-8 overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-600 to-blue-800 rounded-2xl">
@@ -42,6 +44,7 @@
         </div>
     </div>
 
+
     <!-- Stats Cards -->
     <div class="grid gap-6 mb-8 md:grid-cols-3">
         <div class="p-6 transition bg-white border border-gray-100 shadow-sm rounded-2xl hover:shadow-md">
@@ -51,11 +54,24 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                     </svg>
                 </div>
-                <span class="text-xs font-semibold text-blue-600 uppercase bg-blue-50 px-2.5 py-1 rounded-full">Total</span>
+                <span class="text-xs font-semibold text-blue-600 uppercase bg-blue-50 px-2.5 py-1 rounded-full">
+                    @if(request()->hasAny(['period', 'status', 'org_type']))
+                        Filtered
+                    @else
+                        Total
+                    @endif
+                </span>
             </div>
             <p class="mb-1 text-2xl font-bold text-gray-900">{{ count($rooms) }}</p>
-            <p class="text-xs text-gray-500">Total Organisasi</p>
+            <p class="text-xs text-gray-500">
+                @if(request()->hasAny(['period', 'status', 'org_type']))
+                    Hasil Filter
+                @else
+                    Total Organisasi
+                @endif
+            </p>
         </div>
+
 
         <div class="p-6 transition bg-white border border-gray-100 shadow-sm rounded-2xl hover:shadow-md">
             <div class="flex items-center justify-between mb-3">
@@ -72,6 +88,7 @@
             <p class="text-xs text-gray-500">Organisasi Aktif</p>
         </div>
 
+
         <div class="p-6 transition bg-white border border-gray-100 shadow-sm rounded-2xl hover:shadow-md">
             <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-gray-50">
@@ -87,6 +104,124 @@
             <p class="text-xs text-gray-500">Organisasi Nonaktif</p>
         </div>
     </div>
+
+
+    <!-- ✅ FILTER SECTION (BARU) -->
+    <div class="p-6 mb-8 bg-white border border-gray-100 shadow-sm rounded-2xl">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-blue-600">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                </svg>
+            </div>
+            <div>
+                <h3 class="text-lg font-bold text-gray-900">Filter & Pencarian</h3>
+                <p class="text-xs text-gray-600">Tampilkan organisasi berdasarkan periode, status, atau jenis</p>
+            </div>
+        </div>
+
+        <form method="GET" action="{{ route('admin.room.index') }}" class="space-y-4">
+            <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
+                <!-- Filter Periode -->
+                <div>
+                    <label class="block mb-2 text-xs font-bold text-gray-700">Periode Kepengurusan</label>
+                    <div class="relative">
+                        <select name="period" class="w-full px-4 py-2.5 text-sm bg-white border-2 border-gray-200 rounded-xl appearance-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 hover:border-gray-300">
+                            <option value="">-- Semua Periode --</option>
+                            @foreach($periods as $period)
+                                <option value="{{ $period }}" {{ request('period') == $period ? 'selected' : '' }}>
+                                    {{ $period }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filter Status -->
+                <div>
+                    <label class="block mb-2 text-xs font-bold text-gray-700">Status Organisasi</label>
+                    <div class="relative">
+                        <select name="status" class="w-full px-4 py-2.5 text-sm bg-white border-2 border-gray-200 rounded-xl appearance-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 hover:border-gray-300">
+                            <option value="">-- Semua Status --</option>
+                            <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Aktif</option>
+                            <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Nonaktif</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filter Jenis Organisasi -->
+                <div>
+                    <label class="block mb-2 text-xs font-bold text-gray-700">Jenis Organisasi</label>
+                    <div class="relative">
+                        <select name="org_type" class="w-full px-4 py-2.5 text-sm bg-white border-2 border-gray-200 rounded-xl appearance-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 hover:border-gray-300">
+                            <option value="">-- Semua Jenis --</option>
+                            <option value="ukm" {{ request('org_type') == 'ukm' ? 'selected' : '' }}>UKM</option>
+                            <option value="ormawa" {{ request('org_type') == 'ormawa' ? 'selected' : '' }}>Ormawa</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tombol Aksi -->
+                <div class="flex items-end gap-2">
+                    <button type="submit" class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-bold text-white transition bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg hover:shadow-xl hover:scale-105">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                        </svg>
+                        Filter
+                    </button>
+                    
+                    @if(request()->hasAny(['period', 'status', 'org_type']))
+                        <a href="{{ route('admin.room.index') }}" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-bold text-gray-700 transition bg-gray-100 rounded-xl hover:bg-gray-200">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                            Reset
+                        </a>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Info Filter Aktif -->
+            @if(request()->hasAny(['period', 'status', 'org_type']))
+                <div class="flex items-center gap-2 p-3 border-l-4 border-blue-500 rounded-lg bg-blue-50">
+                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <div class="flex-1 text-sm">
+                        <span class="font-semibold text-blue-900">Filter Aktif:</span>
+                        <span class="text-blue-700">
+                            @if(request('period'))
+                                Periode: <strong>{{ request('period') }}</strong>
+                            @endif
+                            @if(request('status'))
+                                {{ request('period') ? '|' : '' }} Status: <strong>{{ request('status') == 'active' ? 'Aktif' : 'Nonaktif' }}</strong>
+                            @endif
+                            @if(request('org_type'))
+                                {{ request('period') || request('status') ? '|' : '' }} Jenis: <strong>{{ strtoupper(request('org_type')) }}</strong>
+                            @endif
+                        </span>
+                    </div>
+                </div>
+            @endif
+        </form>
+    </div>
+    <!-- ✅ AKHIR FILTER SECTION -->
+
 
     <!-- Grid daftar UKM/Ormawa -->
     <div class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
@@ -109,6 +244,7 @@
                         'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>'
                     ];
             @endphp
+
 
             <div class="overflow-hidden transition bg-white border border-gray-100 shadow-sm rounded-2xl hover:shadow-xl hover:border-blue-200 group">
                 <!-- Header dengan gradient biru -->
@@ -146,6 +282,7 @@
                     </div>
                 </div>
 
+
                 <!-- Info tambahan (Anggota & Proker) -->
                 <div class="px-6 py-4 border-b border-gray-100">
                     <div class="grid grid-cols-2 gap-4">
@@ -174,6 +311,7 @@
                         </div>
                     </div>
                 </div>
+
 
                 <!-- Tombol aksi -->
                 <div class="flex items-center justify-between px-6 py-4 bg-gray-50/60">
@@ -218,15 +356,37 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                         </svg>
                     </div>
-                    <p class="mb-2 text-lg font-semibold text-gray-900">Belum Ada UKM / Ormawa</p>
-                    <p class="mb-4 text-sm text-gray-500">Tambahkan organisasi kemahasiswaan pertama Anda</p>
-                    <a href="{{ route('admin.room.create') }}"
-                       class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white transition bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg hover:shadow-xl hover:scale-105">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                        </svg>
-                        Tambah UKM / Ormawa
-                    </a>
+                    <p class="mb-2 text-lg font-semibold text-gray-900">
+                        @if(request()->hasAny(['period', 'status', 'org_type']))
+                            Tidak Ada Hasil
+                        @else
+                            Belum Ada UKM / Ormawa
+                        @endif
+                    </p>
+                    <p class="mb-4 text-sm text-gray-500">
+                        @if(request()->hasAny(['period', 'status', 'org_type']))
+                            Coba ubah filter atau reset pencarian
+                        @else
+                            Tambahkan organisasi kemahasiswaan pertama Anda
+                        @endif
+                    </p>
+                    @if(request()->hasAny(['period', 'status', 'org_type']))
+                        <a href="{{ route('admin.room.index') }}"
+                           class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white transition bg-gradient-to-r from-gray-600 to-gray-700 rounded-xl shadow-lg hover:shadow-xl hover:scale-105">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                            Reset Filter
+                        </a>
+                    @else
+                        <a href="{{ route('admin.room.create') }}"
+                           class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white transition bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg hover:shadow-xl hover:scale-105">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            Tambah UKM / Ormawa
+                        </a>
+                    @endif
                 </div>
             </div>
         @endforelse
