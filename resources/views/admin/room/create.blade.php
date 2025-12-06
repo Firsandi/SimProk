@@ -1,7 +1,9 @@
 @extends('layouts.admin')
 
+
 @section('content')
 <div class="max-w-screen-md px-4 mx-auto sm:px-6 lg:px-8">
+
 
     <!-- Header dengan gradient biru -->
     <div class="relative p-8 mb-8 overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-600 to-blue-800 rounded-2xl">
@@ -33,6 +35,7 @@
         </div>
     </div>
 
+
     <!-- Card Form -->
     <div class="overflow-hidden bg-white border-0 shadow-lg rounded-2xl">
         <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50">
@@ -49,6 +52,7 @@
             </div>
         </div>
 
+
         <form
             action="{{ route('admin.room.store') }}"
             method="POST"
@@ -59,6 +63,7 @@
             class="px-6 py-6 space-y-6"
         >
             @csrf
+
 
             <!-- Nama -->
             <div>
@@ -85,6 +90,7 @@
                     </p>
                 @enderror
             </div>
+
 
             <!-- Jenis Organisasi -->
             <div>
@@ -123,7 +129,8 @@
                 @enderror
             </div>
 
-            <!-- Periode -->
+
+            <!-- ✅ Periode Kepengurusan (DROPDOWN TAHUN) -->
             <div>
                 <label class="flex items-center gap-2 mb-2 text-sm font-bold text-gray-800">
                     <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -131,19 +138,30 @@
                     </svg>
                     Periode Kepengurusan
                 </label>
-                <input
-                    type="text"
-                    name="period"
-                    value="{{ old('period') }}"
-                    class="w-full px-4 py-3 text-sm transition border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 hover:border-gray-300"
-                    placeholder="Contoh: 2024/2025"
-                    required
-                >
+                <div class="relative">
+                    <select
+                        name="period"
+                        class="w-full px-4 py-3 text-sm font-semibold transition bg-white border-2 border-gray-200 appearance-none rounded-xl focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 hover:border-gray-300"
+                        required
+                    >
+                        <option value="">-- Pilih Tahun Periode --</option>
+                        @for ($year = $currentYear; $year <= $currentYear + 5; $year++)
+                            <option value="{{ $year }}" {{ old('period') == $year ? 'selected' : '' }}>
+                                {{ $year }}
+                            </option>
+                        @endfor
+                    </select>
+                    <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </div>
+                </div>
                 <p class="flex items-center gap-1 mt-2 text-xs text-gray-500">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
-                    Format: Tahun/Tahun (contoh: 2024/2025 atau 2024-2025)
+                    Pilih tahun periode kepengurusan (minimal {{ $currentYear }})
                 </p>
                 @error('period')
                     <p class="flex items-center gap-1 mt-2 text-sm text-red-600">
@@ -154,6 +172,7 @@
                     </p>
                 @enderror
             </div>
+
 
             <!-- Status -->
             <div>
@@ -181,6 +200,7 @@
                         </div>
                     </label>
 
+
                     <label class="relative flex items-center gap-3 p-4 transition border-2 border-gray-200 cursor-pointer rounded-xl hover:border-gray-400 hover:bg-gray-50/30 has-[:checked]:border-gray-500 has-[:checked]:bg-gray-50">
                         <input
                             type="radio"
@@ -207,8 +227,10 @@
                 @enderror
             </div>
 
+
             <!-- Hidden field -->
             <input type="hidden" name="color" value="blue">
+
 
             <!-- Actions -->
             <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">

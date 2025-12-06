@@ -24,8 +24,8 @@
         </div>
     @endif
 
-    <!-- Header dengan gradient HIJAU -->
-    <div class="relative p-8 mb-8 overflow-hidden transition-all duration-500 shadow-2xl bg-gradient-to-br from-green-600 via-emerald-600 to-teal-700 rounded-3xl hover:shadow-3xl hover:scale-[1.01]">
+    <!-- Header dengan gradient TEAL -->
+    <div class="relative p-8 mb-8 overflow-hidden transition-all duration-500 shadow-2xl bg-gradient-to-br from-teal-500 via-teal-600 to-emerald-600 rounded-3xl hover:shadow-3xl hover:scale-[1.01]">
         <div class="absolute top-0 right-0 w-64 h-64 transition-transform duration-700 transform translate-x-32 -translate-y-32 bg-white rounded-full opacity-10 hover:scale-110"></div>
         <div class="absolute bottom-0 left-0 w-48 h-48 transition-transform duration-700 transform -translate-x-24 translate-y-24 bg-white rounded-full opacity-10 hover:scale-110"></div>
         
@@ -39,18 +39,18 @@
                     </div>
                     <div>
                         <h1 class="text-3xl font-black text-white">Upload Dokumen</h1>
-                        <p class="text-sm font-medium text-green-100 mt-0.5">
+                        <p class="text-sm font-medium text-teal-100 mt-0.5">
                             Unggah dokumen untuk {{ $proker->nama_proker }}
                         </p>
                     </div>
                 </div>
-                <p class="text-green-100">
+                <p class="text-teal-100">
                     <strong>Organisasi:</strong> {{ $room->name }} • <strong>Tahun:</strong> {{ $proker->tahun }}
                 </p>
             </div>
             
             <a href="{{ route('user.documents') }}"
-               class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-green-600 transition-all duration-300 transform bg-white shadow-lg rounded-xl hover:shadow-xl hover:scale-105 hover:-translate-y-0.5">
+               class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-teal-600 transition-all duration-300 transform bg-white shadow-lg rounded-xl hover:shadow-xl hover:scale-105 hover:-translate-y-0.5">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                 </svg>
@@ -94,16 +94,19 @@
     </div>
 
     <!-- Upload Form -->
-    <form action="{{ route('user.documents.store') }}" method="POST" enctype="multipart/form-data" 
+    <form action="{{ route('user.documents.store') }}" 
+          method="POST" 
+          enctype="multipart/form-data"
+          onsubmit="return validateFileSize(event)"
           class="overflow-hidden transition-all duration-300 transform bg-white shadow-xl rounded-3xl hover:shadow-2xl">
         @csrf
         <input type="hidden" name="room_id" value="{{ $room->id }}">
         <input type="hidden" name="proker_id" value="{{ $proker->id }}">
 
         <!-- Form Header -->
-        <div class="px-8 py-6 border-b border-gray-100 bg-gradient-to-r from-green-50 via-emerald-50 to-teal-50">
+        <div class="px-8 py-6 border-b border-gray-100 bg-gradient-to-r from-teal-50 via-emerald-50 to-teal-50">
             <div class="flex items-center gap-3">
-                <div class="flex items-center justify-center w-10 h-10 shadow-sm rounded-xl bg-gradient-to-br from-green-500 to-emerald-600">
+                <div class="flex items-center justify-center w-10 h-10 shadow-sm rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600">
                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                     </svg>
@@ -129,7 +132,7 @@
                     type="text" 
                     name="title" 
                     value="{{ old('title') }}"
-                    class="w-full px-4 py-3 text-sm transition border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500/40 focus:border-green-500 hover:border-gray-300 @error('title') border-red-300 @enderror" 
+                    class="w-full px-4 py-3 text-sm transition border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500/40 focus:border-teal-500 hover:border-gray-300 @error('title') border-red-300 @enderror" 
                     placeholder="Contoh: Proposal Program Kerja Dies Natalis 2025"
                     required>
                 @error('title')
@@ -153,7 +156,7 @@
                 </label>
                 <select 
                     name="document_type" 
-                    class="w-full px-4 py-3 text-sm transition border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500/40 focus:border-green-500 hover:border-gray-300 @error('document_type') border-red-300 @enderror" 
+                    class="w-full px-4 py-3 text-sm transition border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500/40 focus:border-teal-500 hover:border-gray-300 @error('document_type') border-red-300 @enderror" 
                     required>
                     <option value="">-- Pilih Tipe Dokumen --</option>
                     @foreach($allowedDocs as $doc)
@@ -212,19 +215,19 @@
                     <input 
                         type="file" 
                         name="file" 
-                        id="file-input"
+                        id="fileInput"
                         accept=".pdf,.doc,.docx" 
-                        class="w-full px-4 py-3 text-sm transition border-2 border-gray-200 border-dashed rounded-xl cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 focus:border-green-500 focus:ring-2 focus:ring-green-200 @error('file') border-red-300 @enderror" 
+                        class="w-full px-4 py-3 text-sm transition border-2 border-gray-200 border-dashed rounded-xl cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100 focus:border-teal-500 focus:ring-2 focus:ring-teal-200 @error('file') border-red-300 @enderror" 
                         required
                         onchange="updateFileName(this)">
                 </div>
-                <div class="flex items-start gap-2 p-3 mt-3 border-2 border-green-100 rounded-xl bg-green-50">
-                    <svg class="flex-shrink-0 w-5 h-5 mt-0.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="flex items-start gap-2 p-3 mt-3 border-2 border-teal-100 rounded-xl bg-teal-50">
+                    <svg class="flex-shrink-0 w-5 h-5 mt-0.5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                     <div>
-                        <p class="text-xs font-bold text-green-900">Format yang didukung:</p>
-                        <p class="text-xs text-green-700">PDF, DOC, DOCX (Maksimal 10MB)</p>
+                        <p class="text-xs font-bold text-teal-900">Format yang didukung:</p>
+                        <p class="text-xs text-teal-700">PDF, DOC, DOCX (Maksimal <strong>10MB</strong>)</p>
                     </div>
                 </div>
                 <div id="file-name-display" class="hidden p-3 mt-3 border-2 border-blue-200 rounded-xl bg-blue-50">
@@ -257,7 +260,7 @@
                 <textarea 
                     name="notes" 
                     rows="4" 
-                    class="w-full px-4 py-3 text-sm transition border-2 border-gray-200 rounded-xl resize-none focus:ring-2 focus:ring-green-500/40 focus:border-green-500 hover:border-gray-300 @error('notes') border-red-300 @enderror" 
+                    class="w-full px-4 py-3 text-sm transition border-2 border-gray-200 rounded-xl resize-none focus:ring-2 focus:ring-teal-500/40 focus:border-teal-500 hover:border-gray-300 @error('notes') border-red-300 @enderror" 
                     placeholder="Tambahkan catatan atau keterangan tambahan untuk dokumen ini (opsional)...">{{ old('notes') }}</textarea>
                 @error('notes')
                     <p class="flex items-center gap-1 mt-2 text-sm text-red-600">
@@ -281,7 +284,7 @@
             </a>
             <button 
                 type="submit" 
-                class="inline-flex items-center justify-center flex-1 gap-2 px-6 py-3 text-sm font-bold text-white transition-all duration-300 transform shadow-lg bg-gradient-to-r from-green-600 to-emerald-700 rounded-xl hover:shadow-xl hover:scale-105 hover:-translate-y-0.5">
+                class="inline-flex items-center justify-center flex-1 gap-2 px-6 py-3 text-sm font-bold text-white transition-all duration-300 transform shadow-lg bg-gradient-to-r from-teal-600 to-emerald-700 rounded-xl hover:shadow-xl hover:scale-105 hover:-translate-y-0.5">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                 </svg>
@@ -308,18 +311,92 @@
 }
 </style>
 
+<!-- ✅ SWEETALERT ERROR VALIDATION (dari Laravel) -->
+@if ($errors->any())
 <script>
-function updateFileName(input) {
-    const fileName = input.files[0]?.name;
-    const fileNameDisplay = document.getElementById('file-name-display');
-    const fileNameText = document.getElementById('file-name');
-    
-    if (fileName) {
-        fileNameText.textContent = 'File terpilih: ' + fileName;
-        fileNameDisplay.classList.remove('hidden');
-    } else {
-        fileNameDisplay.classList.add('hidden');
+    Swal.fire({
+        icon: 'error',
+        title: 'Gagal Upload Dokumen!',
+        html: `
+            <ul style="text-align: left; padding-left: 20px; margin: 0;">
+                @foreach ($errors->all() as $error)
+                    <li style="margin-bottom: 8px;">{{ $error }}</li>
+                @endforeach
+            </ul>
+        `,
+        confirmButtonColor: '#ef4444',
+        confirmButtonText: 'OK, Saya Mengerti'
+    });
+</script>
+@endif
+
+<!-- ✅ SWEETALERT ERROR FROM SESSION -->
+@if (session('error'))
+<script>
+    Swal.fire({
+        icon: 'error',
+        title: 'Tidak Dapat Upload!',
+        text: '{{ session('error') }}',
+        confirmButtonColor: '#ef4444',
+        confirmButtonText: 'OK'
+    });
+</script>
+@endif
+
+<!-- ✅ VALIDASI FRONTEND (JavaScript) -->
+<script>
+    // Update file name display
+    function updateFileName(input) {
+        const fileName = input.files[0]?.name;
+        const fileNameDisplay = document.getElementById('file-name-display');
+        const fileNameText = document.getElementById('file-name');
+        
+        if (fileName) {
+            fileNameText.textContent = 'File terpilih: ' + fileName;
+            fileNameDisplay.classList.remove('hidden');
+        } else {
+            fileNameDisplay.classList.add('hidden');
+        }
     }
-}
+
+    // Validate file size before submit
+    function validateFileSize(event) {
+        const fileInput = document.getElementById('fileInput');
+        const file = fileInput.files[0];
+        
+        if (file) {
+            const maxSize = 10 * 1024 * 1024; // 10MB dalam bytes
+            const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+            
+            if (file.size > maxSize) {
+                event.preventDefault(); // Stop form submit
+                
+                Swal.fire({
+                    icon: 'error',
+                    title: 'File Terlalu Besar!',
+                    html: `
+                        <div style="text-align: left; padding: 10px;">
+                            <p style="margin-bottom: 10px;">📁 <strong>Ukuran file yang Anda pilih:</strong> ${fileSizeMB} MB</p>
+                            <p style="margin-bottom: 10px;">⚠️ <strong>Maksimal ukuran file:</strong> 10 MB</p>
+                            <hr style="margin: 15px 0; border-color: #e5e7eb;">
+                            <p style="font-size: 14px; color: #6b7280;">
+                                💡 <strong>Solusi:</strong><br>
+                                • Kompres file PDF Anda menggunakan tools online seperti 
+                                  <a href="https://www.ilovepdf.com/compress_pdf" target="_blank" style="color: #0d9488; text-decoration: underline;">ILovePDF</a><br>
+                                • Atau pilih file lain yang lebih kecil
+                            </p>
+                        </div>
+                    `,
+                    confirmButtonColor: '#ef4444',
+                    confirmButtonText: 'OK, Saya Mengerti',
+                    width: '600px'
+                });
+                
+                return false;
+            }
+        }
+        
+        return true;
+    }
 </script>
 @endsection

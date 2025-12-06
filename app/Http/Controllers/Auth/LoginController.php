@@ -45,26 +45,26 @@ class LoginController extends Controller
         if (!$user || !Hash::check($validated['password'], $user->password)) {
             $this->logActivity('login_failed', $user ?? new User(['username'=>$validated['username']]), $validated['user_type']);
             return back()->withErrors([
-                'loginError' => '❌ Username atau password tidak valid.',
+                'loginError' => ' Username atau password tidak valid.',
             ])->withInput($request->except('password'));
         }
 
         if (!$user->is_active) {
             return back()->withErrors([
-                'loginError' => '⚠️ Akun Anda tidak aktif. Hubungi administrator.',
+                'loginError' => ' Akun Anda tidak aktif. Hubungi administrator.',
             ])->withInput($request->except('password'));
         }
 
         // Validasi role sesuai tab
         if ($validated['user_type'] === 'admin' && !$user->isAdmin()) {
             return back()->withErrors([
-                'loginError' => '❌ Anda tidak memiliki akses sebagai Admin. Silakan pilih tab "User".',
+                'loginError' => ' Anda tidak memiliki akses sebagai Admin. Silakan pilih tab "User".',
             ])->withInput($request->except('password'));
         }
 
         if ($validated['user_type'] === 'user' && $user->isAdmin()) {
             return back()->withErrors([
-                'loginError' => '❌ Akun Admin tidak bisa login sebagai User. Silakan pilih tab "Admin".',
+                'loginError' => ' Akun Admin tidak bisa login sebagai User. Silakan pilih tab "Admin".',
             ])->withInput($request->except('password'));
         }
 
@@ -75,8 +75,8 @@ class LoginController extends Controller
         $this->logActivity('login_success', $user, $validated['user_type']);
 
         return $validated['user_type'] === 'admin'
-            ? redirect()->route('admin.dashboard')->with('success', '✅ Selamat datang, Admin ' . $user->name . '!')
-            : redirect()->route('user.dashboard')->with('success', '✅ Selamat datang, ' . $user->name . '!');
+            ? redirect()->route('admin.dashboard')->with('success', ' Selamat datang, Admin ' . $user->name . '!')
+            : redirect()->route('user.dashboard')->with('success', ' Selamat datang, ' . $user->name . '!');
     }
 
     /**

@@ -29,25 +29,5 @@ class DocumentStatus extends Model
         return $this->belongsTo(User::class, 'reviewed_by');
     }
 
-    public function getStatusColor(): string
-    {
-        return match($this->status) {
-            'approved' => 'green',
-            'pending' => 'yellow',
-            'revision' => 'blue',
-            'rejected' => 'red',
-            default => 'gray',
-        };
-    }
 
-    public function getStatusIcon(): string
-    {
-        return match($this->status) {
-            'approved' => '✅',
-            'pending' => '⏳',
-            'revision' => '🔄',
-            'rejected' => '❌',
-            default => '❓',
-        };
-    }
 }

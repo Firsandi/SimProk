@@ -32,6 +32,12 @@ class DocumentController extends Controller
             abort(403, 'Anda bukan anggota proker ini');
         }
 
+        //  Cek apakah proker sudah completed (kedua role 100%)
+        if ($proker->isCompleted()) {
+            return redirect()->route('user.myprokers')
+                ->with('error', 'Program kerja ini sudah selesai (completed). Anda tidak dapat mengupload dokumen lagi.');
+        }
+
         $room = $proker->room;
 
         // Tentukan dokumen yang boleh diunggah sesuai role di proker
@@ -66,38 +72,54 @@ class DocumentController extends Controller
             })
             ->exists();
 
+        // Cek apakah SPJ sudah di-approve
+        $spjApproved = Document::where('proker_id', $proker->id)
+            ->where('document_type', 'spj')
+            ->whereHas('latestStatus', function($query) {
+                $query->where('status', 'approved');
+            })
+            ->exists();
+
         // Dokumen yang bisa diupload oleh Bendahara
         if ($role === 'bendahara') {
+            // Layout BPP hanya bisa diupload jika belum approved
             $allowedDocs[] = [
                 'value' => 'layout_bpp', 
                 'label' => 'Layout BPP', 
-                'enabled' => true // Layout BPP bisa diupload kapan saja
+                'enabled' => !$layoutBppApproved,
+                'reason' => $layoutBppApproved ? 'Layout BPP sudah di-approve' : null
             ];
+
+            // SPJ bisa diupload jika Layout BPP sudah approved DAN SPJ belum approved
             $allowedDocs[] = [
                 'value' => 'spj', 
                 'label' => 'SPJ (Surat Pertanggungjawaban)', 
-                'enabled' => $layoutBppApproved // SPJ bisa diupload jika Layout BPP sudah approved
+                'enabled' => $layoutBppApproved && !$spjApproved,
+                'reason' => !$layoutBppApproved ? 'Layout BPP harus di-approve terlebih dahulu' : ($spjApproved ? 'SPJ sudah di-approve' : null)
             ];
         }
 
         // Dokumen yang bisa diupload oleh Sekretaris
         if ($role === 'sekretaris') {
+            // Proposal hanya bisa diupload jika belum approved
             $allowedDocs[] = [
                 'value' => 'proposal', 
                 'label' => 'Proposal', 
-                'enabled' => true // Proposal bisa diupload kapan saja
+                'enabled' => !$proposalApproved,
+                'reason' => $proposalApproved ? 'Proposal sudah di-approve' : null
             ];
+
+            // LPJ bisa diupload jika Proposal sudah approved DAN LPJ belum approved
             $allowedDocs[] = [
                 'value' => 'lpj', 
                 'label' => 'LPJ (Laporan Pertanggungjawaban)', 
-                'enabled' => $proposalApproved // LPJ bisa diupload jika Proposal sudah approved
+                'enabled' => $proposalApproved && !$lpjApproved,
+                'reason' => !$proposalApproved ? 'Proposal harus di-approve terlebih dahulu' : ($lpjApproved ? 'LPJ sudah di-approve' : null)
             ];
         }
 
         return view('user.Document-create', compact('proker', 'room', 'allowedDocs'));
     }
-
-
 
     public function store(Request $request)
     {
@@ -107,6 +129,16 @@ class DocumentController extends Controller
             'document_type' => ['required', Rule::in(['proposal', 'lpj', 'layout_bpp', 'spj'])],
             'file'          => 'required|file|mimes:pdf,doc,docx|max:10240',
             'notes'         => 'nullable|string',
+        ], [
+            'file.required' => 'File dokumen wajib diunggah.',
+            'file.mimes' => 'Format file harus PDF, DOC, atau DOCX.',
+            'file.max' => 'Ukuran file maksimal adalah 10MB. Silakan kompres file PDF Anda atau pilih file yang lebih kecil.',
+            'title.required' => 'Judul dokumen wajib diisi.',
+            'title.max' => 'Judul dokumen tidak boleh lebih dari 255 karakter.',
+            'document_type.required' => 'Tipe dokumen wajib dipilih.',
+            'document_type.in' => 'Tipe dokumen tidak valid.',
+            'proker_id.required' => 'Program kerja tidak ditemukan.',
+            'proker_id.exists' => 'Program kerja tidak valid.',
         ]);
 
         $proker = RoomProker::findOrFail($request->proker_id);
@@ -114,6 +146,26 @@ class DocumentController extends Controller
         // cek apakah user anggota proker
         if (!$proker->members()->where('user_id', auth()->id())->exists()) {
             abort(403, 'Anda bukan anggota proker ini');
+        }
+
+        //  Cek apakah proker sudah completed
+        if ($proker->isCompleted()) {
+            return redirect()->route('user.myprokers')
+                ->with('error', 'Program kerja ini sudah selesai (completed). Anda tidak dapat mengupload dokumen lagi.');
+        }
+
+        //  VALIDASI: Cek apakah dokumen sudah pernah di-approve (tidak boleh upload lagi)
+        $docAlreadyApproved = Document::where('proker_id', $proker->id)
+            ->where('document_type', $request->document_type)
+            ->whereHas('latestStatus', function($query) {
+                $query->where('status', 'approved');
+            })
+            ->exists();
+
+        if ($docAlreadyApproved) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Dokumen ' . ucfirst(str_replace('_', ' ', $request->document_type)) . ' sudah di-approve. Anda tidak dapat mengupload lagi.');
         }
 
         // Validasi tambahan: Cek apakah dokumen prasyarat sudah di-approve
@@ -169,8 +221,6 @@ class DocumentController extends Controller
             ->with('success', 'Dokumen berhasil diunggah dan menunggu review.');
     }
 
-
-
     // Lihat detail dokumen
     public function show(Document $document)
     {
@@ -204,12 +254,12 @@ class DocumentController extends Controller
         }
 
         if (!$document->isPending()) {
-            return redirect()->back()->with('error', '❌ Hanya dokumen pending yang bisa dihapus');
+            return redirect()->back()->with('error', 'Hanya dokumen pending yang bisa dihapus');
         }
 
         Storage::disk('public')->delete($document->file_path);
         $document->delete();
 
-        return redirect()->route('user.documents')->with('success', '✅ Dokumen berhasil dihapus.');
+        return redirect()->route('user.documents')->with('success', 'Dokumen berhasil dihapus.');
     }
 }

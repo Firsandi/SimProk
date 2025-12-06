@@ -46,7 +46,7 @@ class NotificationController extends Controller
             $notification->markAsRead();
         }
         
-        // ✅ REDIRECT BERDASARKAN action_url DARI NOTIFIKASI
+        //  REDIRECT BERDASARKAN action_url DARI NOTIFIKASI
         $data = $notification->data;
         $actionUrl = $data['action_url'] ?? route('user.myprokers');
         

@@ -54,7 +54,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::delete('/room/{room}/proker/{proker}', [ProkerController::class, 'destroy'])->name('room.proker.destroy');
     Route::get('/room/{room}/proker/{proker}', [ProkerController::class, 'show'])->name('room.proker.show');
     
-    // ✅ TAMBAH 2 BARIS INI - Proker Member Management
+    //  TAMBAH 2 BARIS INI - Proker Member Management
     Route::post('/room/{room}/proker/{proker}/add-member', [ProkerController::class, 'addMember'])->name('room.proker.addMember');
     Route::post('/room/{room}/proker/{proker}/remove-member', [ProkerController::class, 'removeMember'])->name('room.proker.removeMember');
 
@@ -76,7 +76,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 // ==========================================
 // USER ROUTES (Middleware: auth + role:sekretaris,bendahara)
 // ==========================================
-Route::middleware(['auth', 'role:user,sekretaris,bendahara'])->prefix('user')->name('user.')->group(function () {
+Route::middleware(['auth', 'role:sekretaris,bendahara'])->prefix('user')->name('user.')->group(function () {
 
     // Dashboard
     Route::get('/dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
@@ -89,7 +89,7 @@ Route::middleware(['auth', 'role:user,sekretaris,bendahara'])->prefix('user')->n
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::post('/profile/change-password', [ProfileController::class, 'changePassword'])->name('profile.change-password');
 
-   // ✅ NOTIFICATIONS - TAMBAH ROUTES INI
+   //  NOTIFICATIONS - TAMBAH ROUTES INI
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
     Route::post('/notifications/{notification}/read', [NotificationController::class, 'read'])->name('notifications.read');
     Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.readAll');
