@@ -283,13 +283,21 @@
                 Batal
             </a>
             <button 
-                type="submit" 
-                class="inline-flex items-center justify-center flex-1 gap-2 px-6 py-3 text-sm font-bold text-white transition-all duration-300 transform shadow-lg bg-gradient-to-r from-teal-600 to-emerald-700 rounded-xl hover:shadow-xl hover:scale-105 hover:-translate-y-0.5">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                </svg>
-                Upload Dokumen
-            </button>
+                type="submit"
+                onclick="event.preventDefault(); confirmAction(this.closest('form'), {
+                    title: 'Konfirmasi Upload',
+                    text: 'Yakin ingin mengupload dokumen ini?',
+                    confirmText: 'Ya, upload',
+                    cancelText: 'Batal',
+                    icon: 'question'
+                    });"
+                    class="inline-flex items-center justify-center flex-1 gap-2 px-6 py-3 text-sm font-bold text-white transition-all duration-300 transform shadow-lg bg-gradient-to-r from-green-600 to-emerald-700 rounded-xl hover:shadow-xl hover:scale-105 hover:-translate-y-0.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                    </svg>
+                    Upload Dokumen
+                </button>
         </div>
     </form>
 </div>

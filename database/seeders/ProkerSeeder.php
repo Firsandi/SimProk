@@ -11,14 +11,14 @@ class ProkerSeeder extends Seeder
     {
         RoomProker::create([
             'room_id'     => 1,
-            'user_id'     => 1, // sesuaikan: id user pembuat proker
+            'user_id'     => 1, 
             'nama_proker' => 'PPMB',
             'deskripsi'   => 'Pengenalan mengenai FASILKOM kepada Mahasiswa Baru',
             'tahun'       => 2025,
         ]);
 
         RoomProker::create([
-            'room_id'     => 1,
+            'room_id'     => 3,
             'user_id'     => 1,
             'nama_proker' => 'TIC',
             'deskripsi'   => 'Workshop dan Lomba Teknologi tingkat Nasional',
@@ -26,11 +26,12 @@ class ProkerSeeder extends Seeder
         ]);
 
         RoomProker::create([
-            'room_id'     => 1,
+            'room_id'     => 3,
             'user_id'     => 1,
             'nama_proker' => 'COD',
             'deskripsi'   => 'Pengembangan karakter pengurus HIMATIF',
             'tahun'       => 2025,
         ]);
+
     }
 }

@@ -73,8 +73,8 @@
                 @if($unreadCount > 0)
                     <form action="{{ route('user.notifications.readAll') }}" method="POST" class="inline">
                         @csrf
-                        <button type="submit"
-                                class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-300 transform shadow-lg bg-gradient-to-r from-teal-600 to-emerald-700 rounded-xl hover:shadow-xl hover:scale-105 hover:-translate-y-0.5">
+                        <button type="submit" onclick="event.preventDefault(); confirmAction('Yakin update data?', () => this.closest('form').submit());"
+                                class="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-300 transform shadow-lg bg-gradient-to-r from-emerald-600 to-teal-700 rounded-xl hover:shadow-xl hover:scale-105 hover:-translate-y-0.5">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
@@ -182,7 +182,7 @@
                                     @if($isUnread)
                                         <form action="{{ route('user.notifications.read', $notification->id) }}" method="POST" class="mt-4">
                                             @csrf
-                                            <button type="submit"
+                                            <button type="submit" 
                                                     class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white transition-all duration-300 transform shadow-lg bg-gradient-to-r {{ $config['buttonColor'] }} rounded-xl hover:shadow-xl hover:scale-105 hover:-translate-y-0.5">
                                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
@@ -204,14 +204,18 @@
 
                                 <!-- Delete Button with SweetAlert2 -->
                                 <form action="{{ route('user.notifications.destroy', $notification->id) }}" 
-                                      method="POST"
-                                      id="deleteForm-{{ $notification->id }}"
-                                      class="inline">
+                                      method="POST" class="inline">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="button"
-                                            onclick="confirmDelete('{{ $notification->id }}')"
-                                            class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-red-600 transition-all duration-300 transform border-2 border-red-200 bg-red-50 rounded-xl hover:bg-red-100 hover:border-red-300 hover:scale-105 hover:-translate-y-0.5">
+                                    <button type="submit" 
+                                        onclick="event.preventDefault(); confirmAction(this.closest('form'), {
+                                                title: 'Konfirmasi Hapus',
+                                                text: 'Yakin ingin menghapus dokumen ini?',
+                                                confirmText: 'Ya, hapus',
+                                                cancelText: 'Batal',
+                                                icon: 'warning'
+                                        });"
+                                        class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-red-600 transition-all duration-300 transform border-2 border-red-200 bg-red-50 rounded-xl hover:bg-red-100 hover:border-red-300 hover:scale-105 hover:-translate-y-0.5">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                         </svg>
