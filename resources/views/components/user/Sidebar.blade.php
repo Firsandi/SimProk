@@ -1,13 +1,21 @@
-<div class="fixed top-0 left-0 z-50 w-48 h-screen overflow-y-auto text-white bg-gray-900 md:w-64 sidebar">
+<div class="fixed top-0 left-0 z-50 w-64 h-screen overflow-y-auto text-white transition-transform duration-200 ease-in-out -translate-x-full bg-gray-900 user-sidebar md:translate-x-0">
     <div class="p-4 md:p-6">
-        <div class="flex items-center gap-3 mb-6 md:mb-8">
-            <div class="flex items-center justify-center bg-blue-500 rounded-lg w-9 h-9 md:w-10 md:h-10">
-                <i class="text-lg text-white md:text-xl fas fa-folder-open"></i>
+        <div class="flex items-center justify-between mb-6 md:mb-8">
+            <div class="flex items-center gap-3">
+                <div class="flex items-center justify-center bg-blue-500 rounded-lg w-9 h-9 md:w-10 md:h-10">
+                    <i class="text-lg text-white md:text-xl fas fa-folder-open"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-white md:text-xl">SimProk</h1>
+                    <p class="text-[10px] md:text-xs text-gray-400">User Dashboard</p>
+                </div>
             </div>
-            <div>
-                <h1 class="text-lg font-bold text-white md:text-xl">SimProk</h1>
-                <p class="text-[10px] md:text-xs text-gray-400">User Dashboard</p>
-            </div>
+
+            {{-- Tombol close mobile --}}
+            <button id="userSidebarClose"
+                    class="p-2 text-gray-300 rounded-lg md:hidden hover:bg-gray-800">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
 
         <div class="pb-4 mb-4 border-b border-gray-700 md:pb-6 md:mb-6">
@@ -23,7 +31,7 @@
             </div>
         </div>
 
-        <nav class="mb-8 space-y-2">
+        <nav class="mb-6 space-y-2">
             <a href="{{ route('user.dashboard') }}" class="flex items-center gap-3 px-3 md:px-4 py-2.5 md:py-3 text-white rounded-lg menu-item active text-sm md:text-base">
                 <i class="fas fa-home"></i><span>Dashboard</span>
             </a>
@@ -42,7 +50,7 @@
         </nav>
     </div>
 
-    <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-700 md:p-6">
+    <div class="p-4 border-t border-gray-700 md:p-6">
         <form action="{{ route('logout') }}" method="POST">
             @csrf
             <button class="w-full px-4 py-2 text-xs font-medium text-white bg-red-600 rounded-lg md:text-sm hover:bg-red-700 btn">
