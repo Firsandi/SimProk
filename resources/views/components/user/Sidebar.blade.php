@@ -1,60 +1,101 @@
-<div class="fixed top-0 left-0 z-50 w-64 h-screen overflow-y-auto text-white transition-transform duration-200 ease-in-out -translate-x-full bg-gray-900 user-sidebar md:translate-x-0">
-    <div class="p-4 md:p-6">
-        <div class="flex items-center justify-between mb-6 md:mb-8">
-            <div class="flex items-center gap-3">
-                <div class="flex items-center justify-center bg-blue-500 rounded-lg w-9 h-9 md:w-10 md:h-10">
-                    <i class="text-lg text-white md:text-xl fas fa-folder-open"></i>
-                </div>
-                <div>
-                    <h1 class="text-lg font-bold text-white md:text-xl">SimProk</h1>
-                    <p class="text-[10px] md:text-xs text-gray-400">User Dashboard</p>
-                </div>
-            </div>
+{{-- User Sidebar — Premium Dark Glass --}}
+<div class="user-sidebar fixed top-0 left-0 z-50 w-64 h-screen overflow-y-auto text-white transition-transform duration-300 ease-in-out -translate-x-full md:translate-x-0 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-r border-white/5 flex flex-col justify-between">
 
-            {{-- Tombol close mobile --}}
-            <button id="userSidebarClose"
-                    class="p-2 text-gray-300 rounded-lg md:hidden hover:bg-gray-800">
-                <i class="fas fa-times"></i>
-            </button>
+    <div>
+        {{-- Header --}}
+        <div class="p-5 md:p-6 border-b border-white/10">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center justify-center w-10 h-10 md:w-11 md:h-11 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 shadow-lg shadow-teal-500/25">
+                        <i class="text-lg text-white md:text-xl fas fa-folder-open"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-extrabold tracking-tight text-white">SimProk</h1>
+                        <p class="text-[10px] md:text-xs font-medium text-slate-400">User Panel</p>
+                    </div>
+                </div>
+
+                {{-- Mobile close --}}
+                <button id="userSidebarClose"
+                        class="p-2 text-slate-400 rounded-lg md:hidden hover:bg-white/10 hover:text-white transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
         </div>
 
-        <div class="pb-4 mb-4 border-b border-gray-700 md:pb-6 md:mb-6">
-            <div class="flex items-center gap-3 mb-2">
-                <div class="flex items-center justify-center w-10 h-10 text-sm font-bold text-white bg-teal-500 rounded-full md:w-12 md:h-12 md:text-lg">
+        {{-- User Info Card --}}
+        <div class="p-4 border-b border-white/10">
+            <div class="flex items-center gap-3 p-3 rounded-xl bg-white/5">
+                <div class="flex items-center justify-center w-10 h-10 md:w-11 md:h-11 text-sm font-bold text-white rounded-full bg-gradient-to-br from-teal-500 to-emerald-600 shadow-md">
                     {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                 </div>
-                <div class="flex-1">
-                    <p class="text-xs font-semibold text-white truncate md:text-sm">
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-white truncate">
                         {{ auth()->user()->name }}
                     </p>
+                    <p class="text-xs text-slate-400 capitalize">{{ auth()->user()->role }}</p>
                 </div>
             </div>
         </div>
 
-        <nav class="mb-6 space-y-2">
-            <a href="{{ route('user.dashboard') }}" class="flex items-center gap-3 px-3 md:px-4 py-2.5 md:py-3 text-white rounded-lg menu-item active text-sm md:text-base">
-                <i class="fas fa-home"></i><span>Dashboard</span>
+        {{-- Navigation --}}
+        <nav class="p-4 space-y-1.5">
+            <p class="px-3 mb-2 text-[10px] font-bold uppercase tracking-widest text-slate-500">Menu Utama</p>
+
+            <a href="{{ route('user.dashboard') }}"
+               class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
+                    {{ request()->routeIs('user.dashboard')
+                        ? 'bg-gradient-to-r from-teal-600/90 to-emerald-600/90 text-white shadow-lg shadow-teal-500/20 font-semibold'
+                        : 'text-slate-300 hover:bg-white/5 hover:text-white' }}">
+                <i class="fas fa-home w-5 text-center"></i>
+                <span class="font-medium text-sm">Dashboard</span>
             </a>
-            <a href="{{ route('user.myprokers') }}" class="flex items-center gap-3 px-3 md:px-4 py-2.5 md:py-3 text-gray-300 rounded-lg menu-item text-sm md:text-base">
-                <i class="fas fa-briefcase"></i><span>My Prokers</span>
+
+            <a href="{{ route('user.myprokers') }}"
+               class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
+                    {{ request()->routeIs('user.myprokers*')
+                        ? 'bg-gradient-to-r from-teal-600/90 to-emerald-600/90 text-white shadow-lg shadow-teal-500/20 font-semibold'
+                        : 'text-slate-300 hover:bg-white/5 hover:text-white' }}">
+                <i class="fas fa-briefcase w-5 text-center"></i>
+                <span class="font-medium text-sm">My Prokers</span>
             </a>
-            <a href="{{ route('user.documents') }}" class="flex items-center gap-3 px-3 md:px-4 py-2.5 md:py-3 text-gray-300 rounded-lg menu-item text-sm md:text-base">
-                <i class="fas fa-file-alt"></i><span>Documents</span>
+
+            <a href="{{ route('user.documents') }}"
+               class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
+                    {{ request()->routeIs('user.documents*')
+                        ? 'bg-gradient-to-r from-teal-600/90 to-emerald-600/90 text-white shadow-lg shadow-teal-500/20 font-semibold'
+                        : 'text-slate-300 hover:bg-white/5 hover:text-white' }}">
+                <i class="fas fa-file-alt w-5 text-center"></i>
+                <span class="font-medium text-sm">Documents</span>
             </a>
-            <a href="{{ route('user.notifications') }}" class="relative flex items-center gap-3 px-3 md:px-4 py-2.5 md:py-3 text-gray-300 rounded-lg menu-item text-sm md:text-base">
-                <i class="fas fa-bell"></i><span>Notifications</span>
+
+            <a href="{{ route('user.notifications') }}"
+               class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
+                    {{ request()->routeIs('user.notifications*')
+                        ? 'bg-gradient-to-r from-teal-600/90 to-emerald-600/90 text-white shadow-lg shadow-teal-500/20 font-semibold'
+                        : 'text-slate-300 hover:bg-white/5 hover:text-white' }}">
+                <i class="fas fa-bell w-5 text-center"></i>
+                <span class="font-medium text-sm">Notifications</span>
             </a>
-            <a href="{{ route('user.profile') }}" class="flex items-center gap-3 px-3 md:px-4 py-2.5 md:py-3 text-gray-300 rounded-lg menu-item text-sm md:text-base">
-                <i class="fas fa-user"></i><span>Profile</span>
+
+            <a href="{{ route('user.profile') }}"
+               class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
+                    {{ request()->routeIs('user.profile*')
+                        ? 'bg-gradient-to-r from-teal-600/90 to-emerald-600/90 text-white shadow-lg shadow-teal-500/20 font-semibold'
+                        : 'text-slate-300 hover:bg-white/5 hover:text-white' }}">
+                <i class="fas fa-user w-5 text-center"></i>
+                <span class="font-medium text-sm">Profile</span>
             </a>
         </nav>
     </div>
 
-    <div class="p-4 border-t border-gray-700 md:p-6">
+    {{-- Logout --}}
+    <div class="p-4 border-t border-white/10">
         <form action="{{ route('logout') }}" method="POST">
             @csrf
-            <button class="w-full px-4 py-2 text-xs font-medium text-white bg-red-600 rounded-lg md:text-sm hover:bg-red-700 btn">
-                <i class="mr-2 fas fa-sign-out-alt"></i>Logout
+            <button class="flex items-center justify-center w-full gap-2 px-4 py-2.5 text-sm font-semibold text-red-300 transition-all duration-200 rounded-xl border border-red-500/20 bg-red-500/10 hover:bg-red-500/20 hover:text-red-200">
+                <i class="fas fa-sign-out-alt text-xs"></i>
+                <span>Logout</span>
             </button>
         </form>
     </div>

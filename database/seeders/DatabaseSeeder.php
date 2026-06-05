@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             RoomSeeder::class,
             ProkerSeeder::class,
-            // nanti bisa tambah DocumentSeeder, TimelineSeeder kalau sudah ada
+            ProkerMemberSeeder::class,
         ]);
     }
 }

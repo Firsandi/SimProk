@@ -22,5 +22,23 @@ class UserSeeder extends Seeder
             'role' => 'admin',
             'is_active' => true,
         ]);
+
+        User::create([
+            'name' => 'Sekretaris BEM',
+            'username' => 'sekretaris1',
+            'email' => 'sekretaris1@fasilkom.unej.ac.id',
+            'password' => Hash::make('password'),
+            'role' => 'sekretaris',
+            'is_active' => true,
+        ]);
+
+        User::create([
+            'name' => 'Bendahara BEM',
+            'username' => 'bendahara1',
+            'email' => 'bendahara1@fasilkom.unej.ac.id',
+            'password' => Hash::make('password'),
+            'role' => 'bendahara',
+            'is_active' => true,
+        ]);
     }
 }

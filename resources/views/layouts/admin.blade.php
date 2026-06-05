@@ -5,10 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'SimProk - Admin Dashboard')</title>
 
+    {{-- Google Fonts --}}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     @stack('styles')
+
+    <style>
+        body { font-family: 'Plus Jakarta Sans', 'Inter', ui-sans-serif, system-ui, sans-serif; }
+    </style>
 </head>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -16,22 +25,22 @@
     window.Swal = Swal;
 </script>
 
-<body class="font-sans bg-gray-50">
+<body class="bg-slate-50/80 text-gray-800 antialiased">
     {{-- Sidebar --}}
     @include('components.admin.sidebar')
 
     {{-- Overlay untuk mobile --}}
-    <div class="fixed inset-0 z-40 hidden bg-black/40 backdrop-blur-sm md:hidden"
+    <div class="fixed inset-0 z-40 hidden bg-black/40 backdrop-blur-sm md:hidden transition-opacity duration-300"
          id="adminSidebarOverlay"></div>
 
     {{-- Konten --}}
-    <div class="min-h-screen md:ml-64">
+    <div class="min-h-screen md:ml-64 transition-all duration-300">
         @include('components.admin.navbar', [
             'title' => $pageTitle ?? 'dashboard',
             'subtitle' => $pageSubtitle ?? 'Kelola semua data'
         ])
 
-        <main class="p-4 md:p-6">
+        <main class="p-4 md:p-6 lg:p-8">
             @yield('content')
         </main>
     </div>
