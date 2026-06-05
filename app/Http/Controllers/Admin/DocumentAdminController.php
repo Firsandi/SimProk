@@ -7,6 +7,7 @@ use App\Models\Document;
 use App\Models\DocumentStatus;
 use Illuminate\Http\Request;
 use App\Models\Room;   
+use Illuminate\Support\Facades\Storage;
 
 class DocumentAdminController extends Controller
 {
@@ -16,12 +17,19 @@ class DocumentAdminController extends Controller
         return view('admin.documents.index', compact('documents'));
     }
 
-    public function show(Document $document, Room $room)
+    public function show(Document $document)
     {
         $document->load(['room','proker','statuses','submitter']);
-
-        $documents = Document::where('room_id', $room->id)->get();
         return view('admin.documents.show', compact('document'));
+    }
+
+    public function download(Document $document)
+    {
+        $ext = pathinfo($document->file_path, PATHINFO_EXTENSION);
+        return Storage::disk('public')->download(
+            $document->file_path,
+            $document->title . ($ext ? '.' . $ext : '')
+        );
     }
 
     public function review(Request $request, Document $document)

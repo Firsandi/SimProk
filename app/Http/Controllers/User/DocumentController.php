@@ -240,9 +240,10 @@ class DocumentController extends Controller
             abort(403);
         }
 
+        $ext = pathinfo($document->file_path, PATHINFO_EXTENSION);
         return Storage::disk('public')->download(
             $document->file_path,
-            $document->title . '.pdf'
+            $document->title . ($ext ? '.' . $ext : '')
         );
     }
 

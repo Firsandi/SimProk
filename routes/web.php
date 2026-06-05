@@ -8,7 +8,6 @@ use App\Http\Controllers\Admin\DocumentAdminController;
 use App\Http\Controllers\Admin\RoomController as AdminRoomController;
 use App\Http\Controllers\Admin\ProkerController;
 use App\Http\Controllers\Admin\RoomMemberController;
-use App\Http\Controllers\Admin\DocumentReviewController;
 use App\Http\Controllers\User\UserDashboardController;
 use App\Http\Controllers\User\DocumentController;
 use App\Http\Controllers\User\NotificationController;
@@ -38,9 +37,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
 
     //Dokumen
-    Route::get('/dokumen', [\App\Http\Controllers\Admin\DocumentAdminController::class, 'index'])->name('dokumen.index');
-    Route::get('/dokumen/{document}', [\App\Http\Controllers\Admin\DocumentAdminController::class, 'show'])->name('dokumen.show');
-    Route::post('/dokumen/{document}/review', [\App\Http\Controllers\Admin\DocumentAdminController::class, 'review'])->name('dokumen.review');
+    Route::get('/dokumen', [DocumentAdminController::class, 'index'])->name('dokumen.index');
+    Route::get('/dokumen/{document}', [DocumentAdminController::class, 'show'])->name('dokumen.show');
+    Route::post('/dokumen/{document}/review', [DocumentAdminController::class, 'review'])->name('dokumen.review');
+    Route::get('/dokumen/{document}/download', [DocumentAdminController::class, 'download'])->name('dokumen.download');
 
     // Room Management
     Route::resource('room', AdminRoomController::class);
@@ -65,12 +65,6 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/room/{room}/member/{member}/edit', [RoomMemberController::class, 'edit'])->name('room.member.edit');
     Route::put('/room/{room}/member/{member}', [RoomMemberController::class, 'update'])->name('room.member.update');
     Route::delete('/room/{room}/member/{member}', [RoomMemberController::class, 'destroy'])->name('room.member.destroy');
-
-    // Document Review
-    Route::get('/documents', [DocumentReviewController::class, 'index'])->name('documents.index');
-    Route::get('/documents/{document}', [DocumentReviewController::class, 'show'])->name('documents.show');
-    Route::post('/documents/{document}/review', [DocumentReviewController::class, 'store'])->name('documents.store');
-    Route::get('/documents/{document}/download', [DocumentReviewController::class, 'download'])->name('documents.download');
 });
 
 // ==========================================
