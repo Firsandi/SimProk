@@ -1,87 +1,95 @@
 {{-- Admin Sidebar — Premium Dark Glass --}}
-<div class="admin-sidebar fixed inset-y-0 left-0 z-50 flex flex-col justify-between w-64 h-screen text-white transition-transform duration-300 ease-in-out -translate-x-full md:translate-x-0 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-r border-white/5">
+<div class="admin-sidebar fixed inset-y-0 left-0 z-50 flex flex-col justify-between w-64 h-screen text-white transition-all duration-300 ease-in-out -translate-x-full md:translate-x-0 bg-slate-900/95 backdrop-blur-2xl border-r border-white/10 shadow-[4px_0_24px_rgba(0,0,0,0.4)]">
 
-    {{-- Header + Close Button --}}
     <div>
-        <div class="p-5 md:p-6 border-b border-white/10">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
+        {{-- Header + Close Button --}}
+        <div class="p-6 border-b border-white/5 relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-indigo-600/10 z-0"></div>
+            <div class="relative z-10 flex items-center justify-between">
+                <div class="flex items-center gap-4">
                     {{-- Logo Icon --}}
-                    <div class="flex items-center justify-center w-10 h-10 md:w-11 md:h-11 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/25">
-                        <i class="text-lg md:text-xl text-white fas fa-crown"></i>
+                    <div class="flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-400 to-indigo-600 shadow-lg shadow-blue-500/30 transform hover:scale-105 transition-transform duration-300">
+                        <i class="text-xl text-white fas fa-crown animate-pulse-soft"></i>
                     </div>
                     <div>
-                        <h1 class="text-lg font-extrabold tracking-tight text-white">SimProk</h1>
-                        <p class="text-[10px] md:text-xs font-medium text-slate-400">Admin Panel</p>
+                        <h1 class="text-xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-300">SimProk</h1>
+                        <p class="text-xs font-semibold text-blue-400 tracking-wider uppercase mt-0.5">Admin Panel</p>
                     </div>
                 </div>
 
                 {{-- Mobile close --}}
                 <button id="adminSidebarClose"
-                        class="p-2 text-slate-400 rounded-lg md:hidden hover:bg-white/10 hover:text-white transition-colors">
-                    <i class="fas fa-times"></i>
+                        class="p-2 text-slate-400 rounded-xl md:hidden hover:bg-white/10 hover:text-white transition-all duration-200">
+                    <i class="fas fa-times text-lg"></i>
                 </button>
             </div>
         </div>
 
         {{-- Navigation --}}
-        <nav class="p-4 space-y-1.5 text-sm">
-            <p class="px-3 mb-2 text-[10px] font-bold uppercase tracking-widest text-slate-500">Menu Utama</p>
+        <nav class="px-4 py-6 space-y-2">
+            <p class="px-4 mb-3 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">Main Navigation</p>
 
-            <a href="{{ route('admin.dashboard') }}"
-               class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
-                    {{ request()->routeIs('admin.dashboard')
-                        ? 'bg-gradient-to-r from-blue-600/90 to-indigo-600/90 text-white shadow-lg shadow-blue-500/20 font-semibold'
-                        : 'text-slate-300 hover:bg-white/5 hover:text-white' }}">
-                <i class="text-base fas fa-home w-5 text-center"></i>
-                <span class="font-medium">Dashboard</span>
-            </a>
+            @php
+                $adminNavItems = [
+                    ['route' => 'admin.dashboard', 'icon' => 'fa-home', 'label' => 'Dashboard', 'pattern' => 'admin.dashboard'],
+                    ['route' => 'admin.dokumen.index', 'icon' => 'fa-file-alt', 'label' => 'Dokumen', 'pattern' => 'admin.dokumen.*'],
+                    ['route' => 'admin.room.index', 'icon' => 'fa-building', 'label' => 'Kelola Room', 'pattern' => 'admin.room.*'],
+                ];
+            @endphp
 
-            <a href="{{ route('admin.dokumen.index') }}"
-               class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
-                    {{ request()->routeIs('admin.dokumen.*')
-                        ? 'bg-gradient-to-r from-blue-600/90 to-indigo-600/90 text-white shadow-lg shadow-blue-500/20 font-semibold'
-                        : 'text-slate-300 hover:bg-white/5 hover:text-white' }}">
-                <i class="text-base fas fa-file-alt w-5 text-center"></i>
-                <span class="font-medium">Dokumen</span>
-            </a>
-
-            <a href="{{ route('admin.room.index') }}"
-               class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200
-                    {{ request()->routeIs('admin.room.*')
-                        ? 'bg-gradient-to-r from-blue-600/90 to-indigo-600/90 text-white shadow-lg shadow-blue-500/20 font-semibold'
-                        : 'text-slate-300 hover:bg-white/5 hover:text-white' }}">
-                <i class="text-base fas fa-building w-5 text-center"></i>
-                <span class="font-medium">Kelola Room</span>
-            </a>
+            @foreach($adminNavItems as $item)
+                @php
+                    $isActive = request()->routeIs($item['pattern']);
+                @endphp
+                <a href="{{ route($item['route']) }}"
+                   class="group flex items-center gap-3.5 px-4 py-3.5 rounded-xl transition-all duration-300 relative overflow-hidden
+                        {{ $isActive
+                            ? 'bg-gradient-to-r from-blue-500/20 to-indigo-500/5 text-white border border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.15)]'
+                            : 'text-slate-400 hover:bg-white/5 hover:text-white border border-transparent' }}">
+                    
+                    @if($isActive)
+                        <div class="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-gradient-to-b from-blue-400 to-indigo-500 rounded-r-full shadow-[0_0_10px_rgba(96,165,250,0.6)]"></div>
+                    @endif
+                    
+                    <div class="flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-300 {{ $isActive ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md' : 'bg-white/5 text-slate-400 group-hover:bg-white/10 group-hover:text-blue-400' }}">
+                        <i class="fas {{ $item['icon'] }} text-sm transition-transform duration-300 group-hover:scale-110"></i>
+                    </div>
+                    <span class="font-semibold text-sm tracking-wide">{{ $item['label'] }}</span>
+                </a>
+            @endforeach
         </nav>
     </div>
 
     {{-- User Card & Logout --}}
-    <div class="border-t border-white/10">
+    <div class="border-t border-white/10 mt-auto">
         {{-- User Info --}}
-        <div class="p-4">
-            <div class="flex items-center gap-3 p-3 rounded-xl bg-white/5">
-                <div class="flex items-center justify-center w-10 h-10 font-bold text-white rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-sm shadow-md">
-                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+        <div class="px-5 pt-6 pb-4">
+            <div class="group relative flex items-center gap-4 p-3.5 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 hover:border-blue-500/30 transition-all duration-300 cursor-pointer overflow-hidden shadow-lg">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div class="relative z-10 flex items-center justify-center w-12 h-12 text-lg font-bold text-white rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-md shadow-blue-500/20 group-hover:shadow-blue-500/40 transition-all duration-300">
+                    {{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}
                 </div>
-                <div class="flex-1 min-w-0">
-                    <p class="text-sm font-semibold text-white truncate">
-                        {{ auth()->user()->name }}
+                <div class="relative z-10 flex-1 min-w-0">
+                    <p class="text-sm font-bold text-white truncate group-hover:text-blue-300 transition-colors duration-200">
+                        {{ auth()->user()->name ?? 'Admin Name' }}
                     </p>
-                    <p class="text-xs text-slate-400">Administrator</p>
+                    <div class="flex items-center gap-1.5 mt-0.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
+                        <p class="text-xs text-slate-400 font-medium uppercase">Administrator</p>
+                    </div>
                 </div>
             </div>
         </div>
 
         {{-- Logout --}}
-        <div class="px-4 pb-4">
-            <form action="{{ route('logout') }}" method="POST">
+        <div class="px-5 pb-5 relative">
+            <form action="{{ route('logout') }}" method="POST" class="relative z-10">
                 @csrf
                 <button type="submit"
-                        class="flex items-center justify-center w-full gap-2 px-4 py-2.5 text-sm font-semibold text-red-300 transition-all duration-200 rounded-xl border border-red-500/20 bg-red-500/10 hover:bg-red-500/20 hover:text-red-200">
-                    <i class="fas fa-sign-out-alt text-xs"></i>
-                    <span>Logout</span>
+                        class="group relative flex items-center justify-center w-full gap-2.5 px-4 py-3.5 text-sm font-bold text-rose-400 transition-all duration-300 rounded-xl bg-rose-500/10 border border-rose-500/20 hover:bg-rose-500 hover:text-white hover:border-rose-500 hover:shadow-[0_0_20px_rgba(244,63,94,0.3)] overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-r from-rose-600 to-rose-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10"></div>
+                    <i class="fas fa-power-off text-sm transition-transform duration-300 group-hover:rotate-180"></i>
+                    <span class="tracking-wide">Log Out</span>
                 </button>
             </form>
         </div>
